@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model action_plans {
+  id          String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  meeting_id  String?   @db.Char(21)
+  description String?
+  due_date    DateTime? @db.Date
+  status      String?
+  meetings    meetings? @relation(fields: [meeting_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tasks       tasks[]
+}
+
+model companies {
+  id         String     @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name       String
+  industry   String?
+  size       String?
+  created_at DateTime?  @default(now()) @db.Timestamptz(6)
+  contacts   contacts[]
+  meetings   meetings[]
+}
+
+model contact_relationships {
+  id                                                          String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  contact_id                                                  String?   @db.Char(21)
+  related_contact_id                                          String?   @db.Char(21)
+  relationship_type                                           String?
+  notes                                                       String?
+  contacts_contact_relationships_contact_idTocontacts         contacts? @relation("contact_relationships_contact_idTocontacts", fields: [contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contacts_contact_relationships_related_contact_idTocontacts contacts? @relation("contact_relationships_related_contact_idTocontacts", fields: [related_contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model contacts {
+  id                                                                       String                  @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  company_id                                                               String?                 @db.Char(21)
+  name                                                                     String
+  email                                                                    String?
+  phone                                                                    String?
+  position                                                                 String?
+  contact_relationships_contact_relationships_contact_idTocontacts         contact_relationships[] @relation("contact_relationships_contact_idTocontacts")
+  contact_relationships_contact_relationships_related_contact_idTocontacts contact_relationships[] @relation("contact_relationships_related_contact_idTocontacts")
+  companies                                                                companies?              @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  meetings                                                                 meetings[]
+  user_contacts                                                            user_contacts[]
+}
+
+model discovery_questions {
+  id                  String               @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  template_id         String?              @db.Char(21)
+  question            String
+  category            String?
+  question_priority   Int?
+  discovery_templates discovery_templates? @relation(fields: [template_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model discovery_templates {
+  id                  String                @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  organization_id     String?               @db.Char(21)
+  user_id             String?               @db.Char(21)
+  name                String
+  description         String?
+  created_at          DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?             @default(now()) @db.Timestamptz(6)
+  discovery_questions discovery_questions[]
+  organizations       organizations?        @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users               users?                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  meetings            meetings[]
+}
+
+model meetings {
+  id                    String                   @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  user_id               String                   @db.Char(21)
+  company_id            String?                  @db.Char(21)
+  contact_id            String?                  @db.Char(21)
+  scheduled_at          DateTime?                @db.Timestamptz(6)
+  duration              Unsupported("interval")?
+  transcription         String?
+  extracted_data        String?
+  prior_context         String?
+  discovery_template_id String?                  @db.Char
+  action_plans          action_plans[]
+  companies             companies?               @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  contacts              contacts?                @relation(fields: [contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  discovery_templates   discovery_templates?     @relation(fields: [discovery_template_id], references: [id], onDelete: Restrict)
+  users                 users                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  presentations         presentations[]
+}
+
+model organization_users {
+  id              String         @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  organization_id String?        @db.Char(21)
+  user_id         String?        @db.Char(21)
+  role            String?
+  organizations   organizations? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model organizations {
+  id                  String                @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name                String
+  created_at          DateTime?             @default(now()) @db.Timestamptz(6)
+  discovery_templates discovery_templates[]
+  organization_users  organization_users[]
+}
+
+model presentations {
+  id         String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  meeting_id String?   @db.Char(21)
+  content    String?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  meetings   meetings? @relation(fields: [meeting_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tasks {
+  id             String       @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  action_plan_id String       @db.Char(21)
+  description    String?
+  assigned_to    String?      @db.Char(21)
+  due_date       DateTime?    @db.Date
+  status         String?
+  action_plans   action_plans @relation(fields: [action_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?       @relation(fields: [assigned_to], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_contacts {
+  id             String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  user_id        String?   @db.Char(21)
+  contact_id     String?   @db.Char(21)
+  personal_notes String?
+  contacts       contacts? @relation(fields: [contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id                  String                @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  idp_id              String                @unique
+  discovery_templates discovery_templates[]
+  meetings            meetings[]
+  organization_users  organization_users[]
+  tasks               tasks[]
+  user_contacts       user_contacts[]
+}
