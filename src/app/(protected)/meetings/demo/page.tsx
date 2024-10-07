@@ -23,7 +23,7 @@ export default function Demo() {
   const [appState, setAppState] = useState(STATE_IDLE);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
-  const [apiError, setApiError] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   /**
    * Create a new call room. This function will return the newly created room URL.
@@ -33,19 +33,37 @@ export default function Demo() {
   const createCall = useCallback(() => {
     setAppState(STATE_CREATING);
     return createRoom()
-      .then((room) => room.url)
+      .then((room) => {
+        if (room && room.url) {
+          return room.url;
+        } else {
+          throw new Error("Invalid room data received");
+        }
+      })
       .catch((error) => {
         console.error("Error creating room", error);
         setRoomUrl(null);
         setAppState(STATE_IDLE);
-        setApiError(true);
+        if (error.message.includes("401")) {
+          setApiError("Authentication failed. Please check your API key in the .env file.");
+        } else if (error.message.includes("403")) {
+          setApiError("Authorization failed. Your API key might not have the necessary permissions.");
+        } else {
+          setApiError(`Failed to create room: ${error.message}`);
+        }
+        return null;
       });
   }, []);
 
   const startDemo = () => {
     createCall().then((url) => {
-      console.log("Start demo. URL: ", url);
-      startHairCheck(url);
+      if (url) {
+        console.log("Start demo. URL: ", url);
+        startHairCheck(url);
+      } else {
+        console.error("Failed to create call");
+        // The error message is already set in createCall
+      }
     });
   };
 
@@ -186,15 +204,22 @@ export default function Demo() {
       return (
         <div className="api-error">
           <h1>Error</h1>
+          <p>{apiError}</p>
           <p>
-            Room could not be created. Check if your `.env` file is set up
-            correctly. For more information, see the{" "}
+            Please ensure your `.env` file is set up correctly with a valid API key. Follow these steps:
+          </p>
+          <ol>
+            <li>Check if the `.env` file exists in the root directory of your project.</li>
+            <li>Verify that the file contains a line like: <code>DAILY_API_KEY=your_api_key_here</code></li>
+            <li>Make sure you've replaced 'your_api_key_here' with your actual Daily.co API key.</li>
+            <li>Restart your development server after making changes to the `.env` file.</li>
+          </ol>
+          <p>
+            For more information on setting up the project, see the{" "}
             <a href="https://github.com/daily-demos/custom-video-daily-react-hooks#readme">
               readme
-            </a>{" "}
-            :
+            </a>.
           </p>
-          <p>{apiError}</p>
         </div>
       );
     }
