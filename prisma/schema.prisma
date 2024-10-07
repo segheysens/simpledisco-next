@@ -77,6 +77,7 @@ model discovery_templates {
 
 model meetings {
   id                    String                   @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name                  String
   user_id               String                   @db.Char(21)
   company_id            String?                  @db.Char(21)
   contact_id            String?                  @db.Char(21)
