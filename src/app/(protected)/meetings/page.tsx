@@ -1,10 +1,8 @@
 "use client";
 import { createMeeting } from "@/app/actions/createMeeting";
-
-// import { Form } from "@remix-run/react";
+import { useFormState } from 'react-dom';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-// import prisma from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -13,10 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+const initialState = {
+  message: null,
+};
+
 export default function Meetings() {
+  const [state, formAction] = useFormState(createMeeting, initialState);
+
   return (
     <form
-      action={createMeeting}
+      action={formAction}
       className="space-y-4 flex flex-col justify-center items-center"
     >
       <Card>
@@ -46,6 +50,9 @@ export default function Meetings() {
               />
             </fieldset>
             <Button type="submit">Create Meeting</Button>
+            {state.message && (
+              <p className="text-red-500">{state.message}</p>
+            )}
           </div>
         </CardContent>
       </Card>
