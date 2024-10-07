@@ -11,12 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const initialState = {
+type State = {
+  message: string | null;
+};
+
+const initialState: State = {
   message: null,
 };
 
 export default function Meetings() {
-  const [state, formAction] = useFormState(createMeeting, initialState);
+  const [state, formAction] = useFormState<State, FormData>(createMeeting, initialState);
 
   return (
     <form
