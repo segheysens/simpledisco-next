@@ -20,6 +20,8 @@ export async function createMeeting(formData: FormData) {
     return;
   }
 
+  console.log("look at me!")
+
   const meeting = await prisma.meetings.create({
     data: { user_id: user.id },
   });

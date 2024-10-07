@@ -13,18 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-/**
- * 
- * 
- * Unhandled Runtime Error
-Error: Hydration failed because the initial UI does not match what was rendered on the server.
-See more info here: https://nextjs.org/docs/messages/react-hydration-error
-
-Expected server HTML to contain a matching <div> in <header 
- * 
- * 
- */
-
 export default function Meetings() {
   return (
     <form
