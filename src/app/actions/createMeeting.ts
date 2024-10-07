@@ -1,11 +1,11 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 type State = {
   message: string | null;
+  redirect?: string;
 };
 
 export async function createMeeting(prevState: State, formData: FormData): Promise<State> {
@@ -21,6 +21,7 @@ export async function createMeeting(prevState: State, formData: FormData): Promi
   }
 
   const user = await prisma.users.findUnique({ where: { idp_id: userId } });
+  console.info(userId)
 
   if (!user) {
     return { message: "User not found" };
@@ -31,7 +32,7 @@ export async function createMeeting(prevState: State, formData: FormData): Promi
       data: { user_id: user.id, name: name },
     });
 
-    redirect(`/app/meetings/${meeting.id}`);
+    return { message: null, redirect: `/app/meetings/${meeting.id}` };
   } catch (error) {
     console.error("Error creating meeting:", error);
     return { message: "Failed to create meeting" };
