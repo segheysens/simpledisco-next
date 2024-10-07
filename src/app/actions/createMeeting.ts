@@ -4,7 +4,11 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
-export async function createMeeting(prevState: any, formData: FormData) {
+type State = {
+  message: string | null;
+};
+
+export async function createMeeting(prevState: State, formData: FormData): Promise<State> {
   const name = formData.get("name") as string;
   const { userId }: { userId: string | null } = auth();
 
