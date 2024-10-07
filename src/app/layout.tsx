@@ -29,8 +29,8 @@ export default function RootLayout({
           <SignedIn>
             <UserButton />
           </SignedIn>
+          <main>{children}</main>
         </ClerkProvider>
-        <main>{children}</main>
       </body>
     </html>
   );
