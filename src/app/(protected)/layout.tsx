@@ -15,6 +15,9 @@ import {
   FaHome,
   FaUsers,
   FaTimes,
+  FaList,
+  FaPencilAlt,
+  FaCalendar,
 } from "react-icons/fa";
 import { PiDiscoBall } from "react-icons/pi";
 
@@ -22,12 +25,10 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "#", icon: FaHome, current: true },
-  { name: "Team", href: "#", icon: FaUsers, current: false },
-  { name: "Projects", href: "#", icon: FaFolder, current: false },
-  { name: "Calendar", href: "#", icon: FaCalendarAlt, current: false },
-  { name: "Documents", href: "#", icon: FaCopy, current: false },
-  { name: "Reports", href: "#", icon: FaChartPie, current: false },
+  { name: "Home", href: "/home", icon: FaHome, current: true },
+  { name: "Meetings", href: "/meetings", icon: FaCalendar, current: false },
+  { name: "Templates", href: "/templates", icon: FaPencilAlt, current: false },
+  { name: "Action Plans", href: "/action-plans", icon: FaList, current: false },
 ];
 
 export default function ProtectedLayout({
