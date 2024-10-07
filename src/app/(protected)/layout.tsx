@@ -22,7 +22,16 @@ import {
 import { PiDiscoBall } from "react-icons/pi";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => mod.UserButton),
+  { ssr: false }
+);
 
 const navigation = [
   { name: "Home", href: "/home", icon: FaHome, current: true },
@@ -37,6 +46,33 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  const currentPage = useMemo(() => {
+    return (
+      navigation.find((item) => item.href === pathname)?.name || "Dashboard"
+    );
+  }, [pathname]);
+
+  const NavLink = ({ item }) => {
+    const isActive = pathname === item.href;
+    return (
+      <li key={item.name}>
+        <Link
+          href={item.href}
+          className={cn(
+            isActive
+              ? "bg-gray-800 text-white"
+              : "text-gray-400 hover:bg-gray-800 hover:text-white",
+            "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+          )}
+        >
+          <item.icon aria-hidden="true" className="h-6 w-6 shrink-0" />
+          {item.name}
+        </Link>
+      </li>
+    );
+  };
 
   return (
     <>
@@ -67,7 +103,7 @@ export default function ProtectedLayout({
                 </button>
               </div>
             </TransitionChild>
-            {/* Sidebar component, swap this element with another sidebar if you like */}
+            {/* Mobile Sidebar component */}
             <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-2 ring-1 ring-white/10">
               <div className="flex h-16 shrink-0 items-center">
                 <PiDiscoBall className="text-emerald-500 h-8 w-8" />
@@ -77,23 +113,7 @@ export default function ProtectedLayout({
                   <li>
                     <ul role="list" className="-mx-2 space-y-1">
                       {navigation.map((item) => (
-                        <li key={item.name}>
-                          <a
-                            href={item.href}
-                            className={cn(
-                              item.current
-                                ? "bg-gray-800 text-white"
-                                : "text-gray-400 hover:bg-gray-800 hover:text-white",
-                              "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                            )}
-                          >
-                            <item.icon
-                              aria-hidden="true"
-                              className="h-6 w-6 shrink-0"
-                            />
-                            {item.name}
-                          </a>
-                        </li>
+                        <NavLink key={item.name} item={item} mobile={true} />
                       ))}
                     </ul>
                   </li>
@@ -103,10 +123,10 @@ export default function ProtectedLayout({
           </DialogPanel>
         </div>
       </Dialog>
+
       <div>
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-          {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
             <div className="flex h-16 shrink-0 items-center">
               <PiDiscoBall className="text-emerald-500 h-8 w-8" />
@@ -116,34 +136,15 @@ export default function ProtectedLayout({
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
                     {navigation.map((item) => (
-                      <li key={item.name}>
-                        <a
-                          href={item.href}
-                          className={cn(
-                            item.current
-                              ? "bg-gray-800 text-white"
-                              : "text-gray-400 hover:bg-gray-800 hover:text-white",
-                            "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
-                          )}
-                        >
-                          <item.icon
-                            aria-hidden="true"
-                            className="h-6 w-6 shrink-0"
-                          />
-                          {item.name}
-                        </a>
-                      </li>
+                      <NavLink key={item.name} item={item} />
                     ))}
                   </ul>
                 </li>
-                <li className="-mx-6 mt-auto">
-                  <a
-                    href="#"
-                    className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
-                  >
-                    <span className="sr-only">Your profile</span>
-                    <span aria-hidden="true">Tom Cook</span>
-                  </a>
+                <li className="-mx-6 mt-auto p-4 flex flex-row items-center justify-start">
+                  <UserButton />
+                  <p className="ml-2 text-white text-sm font-semibold leading-6">
+                    My Profile
+                  </p>
                 </li>
               </ul>
             </nav>
@@ -160,12 +161,12 @@ export default function ProtectedLayout({
             <FaBars aria-hidden="true" className="h-6 w-6" />
           </button>
           <div className="flex-1 text-sm font-semibold leading-6 text-white">
-            Dashboard
+            {currentPage}
           </div>
-          <a href="#">
+          <Link href="#">
             <span className="sr-only">Your profile</span>
             <PiDiscoBall className="text-emerald-500 h-8 w-8" />
-          </a>
+          </Link>
         </div>
 
         <main className="py-10 lg:pl-72">
