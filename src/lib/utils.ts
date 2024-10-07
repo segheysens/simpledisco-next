@@ -17,31 +17,23 @@ export async function createRoom() {
     },
   };
 
-  const isLocal =
-    process.env.REACT_APP_ROOM_ENDPOINT &&
-    process.env.REACT_APP_ROOM_ENDPOINT === "local";
-  console.log("REACT_APP_ROOM_ENDPOINT:", process.env.REACT_APP_ROOM_ENDPOINT);
-  // const endpoint = isLocal
-  //   ? "https://api.daily.co/v1/rooms/"
-  //   : `${window.location.origin}/api/rooms`;
   const endpoint = "https://api.daily.co/v1/rooms/";
 
-  /*
-      No need to send the headers with the request when using the proxy option:
-      netlify.toml takes care of that for us.
-    */
-  const headers = isLocal && {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.REACT_APP_DAILY_API_KEY}`,
-    },
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${process.env.NEXT_PUBLIC_DAILY_API_KEY}`,
   };
 
   const response = await fetch(endpoint, {
     method: "POST",
+    headers: headers,
     body: JSON.stringify(options),
-    ...headers,
   });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
   return response.json();
 }
 
