@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
+import dynamic from 'next/dynamic';
 
 import "./globals.css";
+
+const SignInButton = dynamic(() => import('@clerk/nextjs').then((mod) => mod.SignInButton), { ssr: false });
+const UserButton = dynamic(() => import('@clerk/nextjs').then((mod) => mod.UserButton), { ssr: false });
+const SignedIn = dynamic(() => import('@clerk/nextjs').then((mod) => mod.SignedIn), { ssr: false });
+const SignedOut = dynamic(() => import('@clerk/nextjs').then((mod) => mod.SignedOut), { ssr: false });
 
 export const metadata: Metadata = {
   title: "Create Next App",
