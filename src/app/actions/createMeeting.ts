@@ -4,27 +4,32 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
-export async function createMeeting(formData: FormData) {
+export async function createMeeting(prevState: any, formData: FormData) {
   const name = formData.get("name") as string;
   const { userId }: { userId: string | null } = auth();
 
-  if (!userId) return;
+  if (!userId) {
+    return { message: "User not authenticated" };
+  }
 
   if (!name) {
-    throw new Error("Name is required");
+    return { message: "Name is required" };
   }
 
   const user = await prisma.users.findUnique({ where: { idp_id: userId } });
 
   if (!user) {
-    return;
+    return { message: "User not found" };
   }
 
-  console.log("look at me!")
+  try {
+    const meeting = await prisma.meetings.create({
+      data: { user_id: user.id, name: name },
+    });
 
-  const meeting = await prisma.meetings.create({
-    data: { user_id: user.id },
-  });
-
-  redirect(`/app/meetings/${meeting.id}`);
+    redirect(`/app/meetings/${meeting.id}`);
+  } catch (error) {
+    console.error("Error creating meeting:", error);
+    return { message: "Failed to create meeting" };
+  }
 }
