@@ -18,6 +18,7 @@ import {
 } from "../../../../lib/utils";
 import { DailyProvider } from "@daily-co/daily-react";
 import { VideoCall, HairCheck, Tray } from "../../../../components";
+import { Button } from "@/components/ui/button";
 
 export default function Demo() {
   const [appState, setAppState] = useState(STATE_IDLE);
@@ -45,9 +46,13 @@ export default function Demo() {
         setRoomUrl(null);
         setAppState(STATE_IDLE);
         if (error.message.includes("401")) {
-          setApiError("Authentication failed. Please check your API key in the .env file.");
+          setApiError(
+            "Authentication failed. Please check your API key in the .env file."
+          );
         } else if (error.message.includes("403")) {
-          setApiError("Authorization failed. Your API key might not have the necessary permissions.");
+          setApiError(
+            "Authorization failed. Your API key might not have the necessary permissions."
+          );
         } else {
           setApiError(`Failed to create room: ${error.message}`);
         }
@@ -206,19 +211,33 @@ export default function Demo() {
           <h1>Error</h1>
           <p>{apiError}</p>
           <p>
-            Please ensure your `.env` file is set up correctly with a valid API key. Follow these steps:
+            Please ensure your `.env` file is set up correctly with a valid API
+            key. Follow these steps:
           </p>
           <ol>
-            <li>Check if the `.env` file exists in the root directory of your project.</li>
-            <li>Verify that the file contains a line like: <code>DAILY_API_KEY=your_api_key_here</code></li>
-            <li>Make sure you've replaced 'your_api_key_here' with your actual Daily.co API key.</li>
-            <li>Restart your development server after making changes to the `.env` file.</li>
+            <li>
+              Check if the `.env` file exists in the root directory of your
+              project.
+            </li>
+            <li>
+              Verify that the file contains a line like:{" "}
+              <code>DAILY_API_KEY=your_api_key_here</code>
+            </li>
+            <li>
+              Make sure you've replaced 'your_api_key_here' with your actual
+              Daily.co API key.
+            </li>
+            <li>
+              Restart your development server after making changes to the `.env`
+              file.
+            </li>
           </ol>
           <p>
             For more information on setting up the project, see the{" "}
             <a href="https://github.com/daily-demos/custom-video-daily-react-hooks#readme">
               readme
-            </a>.
+            </a>
+            .
           </p>
         </div>
       );
@@ -245,13 +264,15 @@ export default function Demo() {
     // The default view is the HomeScreen, from where we start the demo.
     return (
       <div className="home-screen">
-        <h1>Daily React custom video application</h1>
-        <p>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          SimpleDisco Video Demo
+        </h1>
+        <p className="leading-7 [&:not(:first-child)]:mt-6">
           Start the demo with a new unique room by clicking the button below.
         </p>
-        <button onClick={startDemo} type="button">
+        <Button onClick={startDemo} type="button">
           Click to start a call
-        </button>
+        </Button>
         <p className="small">
           Select “Allow” to use your camera and mic for this call if prompted
         </p>

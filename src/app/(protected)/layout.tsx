@@ -75,7 +75,7 @@ export default function ProtectedLayout({
   };
 
   return (
-    <>
+    <div className="h-full">
       <Dialog
         open={sidebarOpen}
         onClose={setSidebarOpen}
@@ -169,10 +169,10 @@ export default function ProtectedLayout({
           </Link>
         </div>
 
-        <main className="py-10 lg:pl-72">
-          <div className="px-4 sm:px-6 lg:px-8">{children}</div>
+        <main className="min-h-screen py-10 lg:pl-72">
+          <div className="h-full px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>
-    </>
+    </div>
   );
 }
