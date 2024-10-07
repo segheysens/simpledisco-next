@@ -63,7 +63,7 @@ export default function Home() {
             width={16}
             height={16}
           />
-          Learn
+          <span>Learn</span>
         </a>
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -78,7 +78,7 @@ export default function Home() {
             width={16}
             height={16}
           />
-          Examples
+          <span>Examples</span>
         </a>
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -93,7 +93,7 @@ export default function Home() {
             width={16}
             height={16}
           />
-          Go to nextjs.org →
+          <span>Go to nextjs.org →</span>
         </a>
       </footer>
     </div>
