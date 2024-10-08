@@ -2,7 +2,7 @@
 import { createMeeting } from "@/app/actions/createMeeting";
 import { getMeetings } from "@/app/actions/getMeetings";
 import { useFormState } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,16 +29,23 @@ interface Meeting {
 }
 
 export default function Meetings() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState<State, FormData>(
-    createMeeting,
+    async (prevState, formData) => {
+      await createMeeting(prevState, formData);
+      setReloadMeetings(true);
+      return { message: null };
+    },
     initialState
   );
   const [upcomingMeetings, setUpcomingMeetings] = useState<Meeting[]>([]);
   const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
+  const [reloadMeetings, setReloadMeetings] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchMeetings() {
       const allMeetings = await getMeetings();
+      console.log(allMeetings);
       const now = new Date();
 
       const upcoming = allMeetings
@@ -59,10 +66,20 @@ export default function Meetings() {
 
       setUpcomingMeetings(upcoming);
       setRecentMeetings(recent);
+      setReloadMeetings(false);
     }
 
     fetchMeetings();
-  }, []);
+  }, [reloadMeetings]);
+
+  function handleReloadMeetings(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formAction(new FormData(event.currentTarget));
+    setReloadMeetings(true);
+    if (formRef.current) {
+      formRef.current.reset();
+    }
+  }
 
   return (
     <div className="h-full w-full flex flex-col sm:flex-row">
@@ -109,7 +126,9 @@ export default function Meetings() {
 
       <div className="h-full w-full sm:w-2/3 flex flex-col justify-center">
         <form
+          ref={formRef}
           action={formAction}
+          onSubmit={handleReloadMeetings}
           className="space-y-4 flex flex-col justify-center items-center"
         >
           <Card>

@@ -66,7 +66,7 @@ model discovery_templates {
   organization_id     String?               @db.Char(21)
   user_id             String?               @db.Char(21)
   name                String
-  description         String
+  description         String?
   created_at          DateTime?             @default(now()) @db.Timestamptz(6)
   updated_at          DateTime?             @default(now()) @db.Timestamptz(6)
   discovery_questions discovery_questions[]
@@ -77,6 +77,7 @@ model discovery_templates {
 
 model meetings {
   id                    String                   @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name                  String
   user_id               String                   @db.Char(21)
   company_id            String?                  @db.Char(21)
   contact_id            String?                  @db.Char(21)
@@ -85,7 +86,7 @@ model meetings {
   transcription         String?
   extracted_data        String?
   prior_context         String?
-  discovery_template_id String?                  @db.Char
+  discovery_template_id String?                  @db.Char(1)
   action_plans          action_plans[]
   companies             companies?               @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   contacts              contacts?                @relation(fields: [contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)

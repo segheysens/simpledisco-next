@@ -8,12 +8,7 @@ import {
 } from "@headlessui/react";
 import {
   FaBars,
-  FaCalendarAlt,
-  FaChartPie,
-  FaCopy,
-  FaFolder,
   FaHome,
-  FaUsers,
   FaTimes,
   FaList,
   FaPencilAlt,

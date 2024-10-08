@@ -92,6 +92,19 @@ export default function Templates() {
                     placeholder="e.g. 'MEDDPICC Discovery'"
                     required
                   />
+                   <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Name
+                  </label>
+                  <Input
+                    type="text"
+                    id="description"
+                    name="description"
+                    placeholder="e.g. 'What is this field for?'"
+                    required
+                  />
                 </fieldset>
                 <Button type="submit">Create Template</Button>
                 {state.message && (
