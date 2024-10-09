@@ -13,7 +13,6 @@ import {
 } from "@headlessui/react";
 import {
   FaBars,
-  FaHome,
   FaTimes,
   FaList,
   FaPencilAlt,
@@ -30,8 +29,7 @@ const UserButton = dynamic(
 );
 
 const navigation = [
-  { name: "Home", href: "/home", icon: FaHome, current: true },
-  { name: "Meetings", href: "/meetings", icon: FaCalendar, current: false },
+  { name: "Meetings", href: "/meetings", icon: FaCalendar, current: true },
   { name: "Templates", href: "/templates", icon: FaPencilAlt, current: false },
   { name: "Action Plans", href: "/action-plans", icon: FaList, current: false },
 ];

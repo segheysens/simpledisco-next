@@ -269,7 +269,6 @@ export default function Demo() {
       );
     }
 
-    // The default view is the HomeScreen, from where we start the demo.
     return (
       <div className="home-screen">
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">

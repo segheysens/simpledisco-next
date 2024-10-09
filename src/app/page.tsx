@@ -119,7 +119,7 @@ export default function Home() {
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <SignedIn>
                   <div className="p-4 rounded flex flex-row items-center gap-4 bg-gray-50 dark:bg-gray-800">
-                    <Link href="/home">
+                    <Link href="/meetings">
                       <Button>Go to app</Button>
                     </Link>
                     <UserButton />

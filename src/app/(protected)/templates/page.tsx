@@ -79,7 +79,12 @@ export default function Templates() {
                       </h3>
 
                       <p className="text-sm text-gray-500">
-                        last updated {template.updated_at.toLocaleDateString()}
+                        {template.updated_at && (
+                          <>
+                            last updated{" "}
+                            {template.updated_at.toLocaleDateString()}
+                          </>
+                        )}
                       </p>
                     </div>
 
