@@ -12,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type State = {
   message: string | null;
@@ -45,6 +47,7 @@ export default function Meetings() {
   useEffect(() => {
     async function fetchMeetings() {
       const allMeetings = await getMeetings();
+      console.log("allMeetings:");
       console.log(allMeetings);
       const now = new Date();
 
@@ -117,7 +120,9 @@ export default function Meetings() {
                     {new Date(meeting.scheduled_at).toLocaleTimeString()}
                   </p>
                 </div>
-                <Button variant="outline">View</Button>
+                <Link href={`/meetings/${meeting.id}`}>
+                  <Button variant="outline">View</Button>
+                </Link>
               </div>
             </li>
           ))}

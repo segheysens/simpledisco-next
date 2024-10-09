@@ -1,5 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+
 import {
   Dialog,
   DialogBackdrop,
@@ -15,13 +20,9 @@ import {
   FaCalendar,
 } from "react-icons/fa";
 import { PiDiscoBall } from "react-icons/pi";
+import { Command } from "cmdk";
 
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
-
-import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
 
 const UserButton = dynamic(
   () => import("@clerk/nextjs").then((mod) => mod.UserButton),
@@ -41,7 +42,9 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const currentPage = useMemo(() => {
     return (
@@ -68,6 +71,19 @@ export default function ProtectedLayout({
       </li>
     );
   };
+
+  // Toggle the menu when ⌘K is pressed
+  useEffect(() => {
+    const down = (e) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCmdOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   return (
     <div className="h-full">
@@ -168,6 +184,32 @@ export default function ProtectedLayout({
           <div className="h-full px-4 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>
+
+      <Command.Dialog
+        open={cmdOpen}
+        onOpenChange={setCmdOpen}
+        label="Global Command Menu"
+      >
+        <Command.Input placeholder="Type a command or search..." />
+        <Command.List>
+          <Command.Empty>No results found.</Command.Empty>
+
+          <Command.Group heading="Navigation">
+            {navigation.map((item) => (
+              <Command.Item
+                key={item.name}
+                onSelect={() => {
+                  router.push(item.href);
+                  setCmdOpen(false);
+                }}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.name}
+              </Command.Item>
+            ))}
+          </Command.Group>
+        </Command.List>
+      </Command.Dialog>
     </div>
   );
 }

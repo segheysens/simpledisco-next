@@ -12,6 +12,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import ReactMarkdown from "react-markdown";
+import Link from "next/link";
 
 type State = {
   message: string | null;
@@ -24,6 +31,9 @@ const initialState: State = {
 interface Template {
   id: string;
   name: string;
+  content: string; // Add this line to include the content field
+  created_at: Date;
+  updated_at: Date;
   // Add other relevant fields from your schema
 }
 
@@ -46,17 +56,34 @@ export default function Templates() {
   return (
     <div className="h-full w-full flex flex-col sm:flex-row">
       <div className="h-full w-full sm:w-1/3 flex flex-col justify-center">
-        <h1 className="text-3xl font-bold">Templates</h1>
-        <h2 className="text-sm font-semibold">All Templates</h2>
-        <ul className="space-y-4">
+        <h1 className="text-3xl font-bold mb-4">Templates</h1>
+        <ul className="space-y-2">
           {templates.map((template) => (
-            <li key={template.id}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">{template.name}</h3>
-                </div>
-                <Button variant="outline">View</Button>
-              </div>
+            <li key={template.id} className="hover:bg-gray-50 rounded p-4">
+              <HoverCard>
+                <HoverCardTrigger>
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <h3 className="text-lg font-semibold cursor-pointer">
+                        {template.name}
+                      </h3>
+
+                      <p className="text-sm text-gray-500">
+                        last updated {template.updated_at.toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    <Link href={`/templates/${template.id}/edit`}>
+                      <Button variant="outline">Edit</Button>
+                    </Link>
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <ReactMarkdown className="markdown-content">
+                    {template.content}
+                  </ReactMarkdown>
+                </HoverCardContent>
+              </HoverCard>
             </li>
           ))}
         </ul>
@@ -92,17 +119,17 @@ export default function Templates() {
                     placeholder="e.g. 'MEDDPICC Discovery'"
                     required
                   />
-                   <label
-                    htmlFor="name"
+                  <label
+                    htmlFor="content"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Name
+                    Content
                   </label>
                   <Input
                     type="text"
-                    id="description"
-                    name="description"
-                    placeholder="e.g. 'What is this field for?'"
+                    id="content"
+                    name="content"
+                    placeholder="Make your own BANT, MEDDPICC, or other template here"
                     required
                   />
                 </fieldset>

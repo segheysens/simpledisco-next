@@ -76,10 +76,15 @@ export default function Demo() {
    * We've created a room, so let's start the hair check. We won't be joining the call yet.
    */
   const startHairCheck = useCallback(async (url: string) => {
+    // Create a new call object only when needed
     const newCallObject = DailyIframe.createCallObject();
     setRoomUrl(url);
     setCallObject(newCallObject);
     setAppState(STATE_HAIRCHECK);
+
+    console.log("newCallObject:");
+    console.log(newCallObject);
+
     await newCallObject.preAuth({ url }); // add a meeting token here if your room is private
     await newCallObject.startCamera();
   }, []);
@@ -98,20 +103,23 @@ export default function Demo() {
    */
   const startLeavingCall = useCallback(() => {
     if (!callObject) return;
-    // If we're in the error state, we've already "left", so just clean up
-    if (appState === STATE_ERROR) {
-      callObject.destroy().then(() => {
-        setRoomUrl(null);
-        setCallObject(null);
-        setAppState(STATE_IDLE);
+    setAppState(STATE_LEAVING);
+    callObject
+      .leave()
+      .then(() => {
+        callObject.destroy().then(() => {
+          setRoomUrl(null);
+          setCallObject(null);
+          setAppState(STATE_IDLE);
+        });
+      })
+      .catch((error) => {
+        console.error("Error leaving call:", error);
+        setAppState(STATE_ERROR);
+        callObject.leave();
+        // callObject.destroy();
       });
-    } else {
-      /* This will trigger a `left-meeting` event, which in turn will trigger
-      the full clean-up as seen in handleNewMeetingState() below. */
-      setAppState(STATE_LEAVING);
-      callObject.leave();
-    }
-  }, [callObject, appState]);
+  }, [callObject]);
 
   /**
    * If a room's already specified in the page's URL when the component mounts,
@@ -279,6 +287,15 @@ export default function Demo() {
       </div>
     );
   };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup function to destroy the call object when component unmounts
+      if (callObject) {
+        callObject.destroy();
+      }
+    };
+  }, [callObject]);
 
   return <div className="daily-app">{renderApp()}</div>;
 }

@@ -10,18 +10,16 @@ import {
 
 import VideoCallMeetingInfo from "./VideoCallMeetingInfo";
 import Chat from "./Chat";
+import Button from "./ui/button";
 
 import {
-  FaCamera,
   FaDoorOpen,
   FaVideoSlash,
   FaMicrophone,
   FaMicrophoneSlash,
   FaLaptop,
   FaInfoCircle,
-  faspea,
   FaVideo,
-  FaMicrophoneAltSlash,
 } from "react-icons/fa";
 import { IoChatbubbleEllipses } from "react-icons/io5";
 import { IoChatbubbleOutline } from "react-icons/io5";
@@ -77,49 +75,54 @@ export default function Tray({ leaveCall }) {
   };
 
   return (
-    <div className="tray">
+    <div className="tray p-4 rounded-t-lg shadow-lg">
       {showMeetingInformation && <VideoCallMeetingInfo />}
-      {/*  The chat messages 'live' in the <Chat/> component's state. We can't just remove the component */}
-      {/*  from the DOM when hiding the chat, because that would cause us to lose that state. So we're */}
-      {/*  choosing a slightly different approach of toggling the chat: always render the component, but only */}
-      {/*  render its HTML when showChat is set to true. */}
-
-      {/*   We're also passing down the toggleChat() function to the component, so we can open and close the chat */}
-      {/*   from the chat UI and not just the Tray. */}
       <Chat showChat={showChat} toggleChat={toggleChat} />
-      <div className="tray-buttons-container">
-        <div className="controls">
-          <button onClick={toggleVideo} type="button">
-            {mutedVideo ? <FaVideoSlash /> : <FaVideo />}
-            {mutedVideo ? "Turn camera on" : "Turn camera off"}
-          </button>
-          <button onClick={toggleAudio} type="button">
-            {mutedAudio ? <FaMicrophoneSlash /> : <FaMicrophone />}
-            {mutedAudio ? "Unmute mic" : "Mute mic"}
-          </button>
-        </div>
-        <div className="actions">
-          <button onClick={toggleScreenShare} type="button">
-            <FaLaptop />
-            {isSharingScreen ? "Stop sharing screen" : "Share screen"}
-          </button>
-          <button onClick={toggleMeetingInformation} type="button">
-            <FaInfoCircle />
-            {showMeetingInformation ? "Hide info" : "Show info"}
-          </button>
-          <button onClick={toggleChat} type="button">
-            {newChatMessage ? (
-              <IoChatbubbleEllipses />
+      <div className="tray-buttons-container flex justify-between items-center">
+        <div className="controls space-x-2">
+          <Button onClick={toggleVideo} variant="secondary" size="sm">
+            {mutedVideo ? (
+              <FaVideoSlash className="mr-2" />
             ) : (
-              <IoChatbubbleOutline />
+              <FaVideo className="mr-2" />
+            )}
+            {mutedVideo ? "Turn camera on" : "Turn camera off"}
+          </Button>
+          <Button onClick={toggleAudio} variant="secondary" size="sm">
+            {mutedAudio ? (
+              <FaMicrophoneSlash className="mr-2" />
+            ) : (
+              <FaMicrophone className="mr-2" />
+            )}
+            {mutedAudio ? "Unmute mic" : "Mute mic"}
+          </Button>
+        </div>
+        <div className="actions space-x-2">
+          <Button onClick={toggleScreenShare} variant="secondary" size="sm">
+            <FaLaptop className="mr-2" />
+            {isSharingScreen ? "Stop sharing" : "Share screen"}
+          </Button>
+          <Button
+            onClick={toggleMeetingInformation}
+            variant="secondary"
+            size="sm"
+          >
+            <FaInfoCircle className="mr-2" />
+            {showMeetingInformation ? "Hide info" : "Show info"}
+          </Button>
+          <Button onClick={toggleChat} variant="secondary" size="sm">
+            {newChatMessage ? (
+              <IoChatbubbleEllipses className="mr-2" />
+            ) : (
+              <IoChatbubbleOutline className="mr-2" />
             )}
             {showChat ? "Hide chat" : "Show chat"}
-          </button>
+          </Button>
         </div>
         <div className="leave">
-          <button onClick={leaveCall} type="button">
-            <FaDoorOpen /> Leave call
-          </button>
+          <Button onClick={leaveCall} variant="danger" size="sm">
+            <FaDoorOpen className="mr-2" /> Leave call
+          </Button>
         </div>
       </div>
     </div>
