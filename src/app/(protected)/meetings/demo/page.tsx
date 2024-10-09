@@ -25,6 +25,7 @@ export default function Demo() {
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [meetingToken, setMeetingToken] = useState<string | null>(null);
 
   /**
    * Create a new call room. This function will return the newly created room URL.
@@ -72,32 +73,59 @@ export default function Demo() {
     });
   };
 
+  const fetchMeetingToken = useCallback(async (roomName: string) => {
+    try {
+      const response = await fetch('/api/dailyToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ roomName }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch meeting token');
+      }
+  
+      const data = await response.json();
+      setMeetingToken(data.token);
+      return data.token;
+    } catch (error) {
+      console.error('Error fetching meeting token:', error);
+      setApiError('Failed to fetch meeting token');
+      return null;
+    }
+  }, []);
+
   /**
    * We've created a room, so let's start the hair check. We won't be joining the call yet.
    */
   const startHairCheck = useCallback(async (url: string) => {
-    // Create a new call object only when needed
     const newCallObject = DailyIframe.createCallObject();
     setRoomUrl(url);
     setCallObject(newCallObject);
     setAppState(STATE_HAIRCHECK);
-
-    console.log("newCallObject:");
-    console.log(newCallObject);
-
-    await newCallObject.preAuth({ url }); // add a meeting token here if your room is private
-    await newCallObject.startCamera();
-  }, []);
+  
+    const roomName = url.split('/').pop() || '';
+    const token = await fetchMeetingToken(roomName);
+  
+    if (token) {
+      await newCallObject.preAuth({ url, token });
+      await newCallObject.startCamera();
+    } else {
+      console.error('Failed to fetch meeting token');
+      setAppState(STATE_IDLE);
+    }
+  }, [fetchMeetingToken]);
 
   /**
    * Once we pass the hair check, we can actually join the call.
    */
   const joinCall = useCallback(() => {
-    if (callObject && roomUrl) {
-      callObject.join({ url: roomUrl });
+    if (callObject && roomUrl && meetingToken) {
+      callObject.join({ url: roomUrl, token: meetingToken });
     }
-  }, [callObject, roomUrl]);
-
+  }, [callObject, roomUrl, meetingToken]);
   /**
    * Start leaving the current call.
    */

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   useDaily,
   useNetwork,
@@ -11,6 +11,11 @@ export default function VideoCallMeetingInfo() {
   const room = useRoom();
   const network = useNetwork();
   const allParticipants = useParticipantIds()?.toString();
+
+  useEffect(() => {
+    if (!room) return;
+    room.config.enable_live_captions_ui = true;
+  }, [room])
 
   return (
     <section className="meeting-information">

@@ -10,7 +10,7 @@ import {
 
 import VideoCallMeetingInfo from "./VideoCallMeetingInfo";
 import Chat from "./Chat";
-import Button from "./ui/button";
+import { Button } from "./ui/button";
 
 import {
   FaDoorOpen,
