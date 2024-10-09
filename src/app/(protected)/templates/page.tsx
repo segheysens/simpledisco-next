@@ -2,7 +2,7 @@
 import { createTemplate } from "@/app/actions/createTemplate";
 import { getTemplates } from "@/app/actions/getTemplates";
 import { useFormState } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,8 @@ import {
 import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 
+import { discovery_templates as Template } from "@prisma/client";
+
 type State = {
   message: string | null;
 };
@@ -28,21 +30,14 @@ const initialState: State = {
   message: null,
 };
 
-interface Template {
-  id: string;
-  name: string;
-  content: string; // Add this line to include the content field
-  created_at: Date;
-  updated_at: Date;
-  // Add other relevant fields from your schema
-}
-
 export default function Templates() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState<State, FormData>(
     createTemplate,
     initialState
   );
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [reloadTemplates, setReloadTemplates] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchTemplates() {
@@ -51,7 +46,22 @@ export default function Templates() {
     }
 
     fetchTemplates();
-  }, []);
+  }, [reloadTemplates]);
+
+  function handleReloadTemplates(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formAction(new FormData(event.currentTarget));
+    setReloadTemplates(true);
+    if (formRef.current) {
+      formRef.current.reset();
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+  };
 
   return (
     <div className="h-full w-full flex flex-col sm:flex-row">
@@ -62,7 +72,7 @@ export default function Templates() {
             <li key={template.id} className="hover:bg-gray-50 rounded p-4">
               <HoverCard>
                 <HoverCardTrigger>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between space-x-2">
                     <div className="flex flex-col">
                       <h3 className="text-lg font-semibold cursor-pointer">
                         {template.name}
@@ -91,7 +101,10 @@ export default function Templates() {
 
       <div className="h-full w-full sm:w-2/3 flex flex-col justify-center">
         <form
+          ref={formRef}
           action={formAction}
+          onSubmit={handleReloadTemplates}
+          onKeyDown={handleKeyDown}
           className="space-y-4 flex flex-col justify-center items-center"
         >
           <Card>
@@ -100,7 +113,7 @@ export default function Templates() {
                 Create New Template
               </CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
-                Make a discovery template to use in meetings
+                Make a discovery template to use in Templates
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6 pt-0">

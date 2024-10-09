@@ -13,15 +13,15 @@ export async function createTemplate(
   formData: FormData
 ): Promise<State> {
   const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
+  const content = formData.get("content") as string;
   const { userId }: { userId: string | null } = auth();
 
   if (!userId) {
     return { message: "User not authenticated" };
   }
 
-  if (!name || !description) {
-    return { message: "Name and description are required" };
+  if (!name || !content) {
+    return { message: "Name and content are required" };
   }
 
   const user = await prisma.users.findUnique({ where: { idp_id: userId } });
@@ -33,7 +33,7 @@ export async function createTemplate(
 
   try {
     const template = await prisma.discovery_templates.create({
-      data: { user_id: user.id, name, description },
+      data: { user_id: user.id, name, content },
     });
 
     return { message: null, redirect: `/app/templates/${template.id}` };

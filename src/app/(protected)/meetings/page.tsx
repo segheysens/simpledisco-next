@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { meetings as Meeting } from "@prisma/client";
 
 type State = {
   message: string | null;
@@ -22,13 +23,6 @@ type State = {
 const initialState: State = {
   message: null,
 };
-
-interface Meeting {
-  id: string;
-  name: string;
-  scheduled_at: string;
-  // Add other relevant fields from your schema
-}
 
 export default function Meetings() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -84,6 +78,12 @@ export default function Meetings() {
     }
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+  };
+
   return (
     <div className="h-full w-full flex flex-col sm:flex-row">
       <div className="h-full w-full sm:w-1/3 flex flex-col justify-center">
@@ -92,7 +92,7 @@ export default function Meetings() {
         <h2 className="text-sm font-semibold">Upcoming Meetings</h2>
         <ul className="space-y-4">
           {upcomingMeetings.map((meeting) => (
-            <li key={meeting.id}>
+            <li key={meeting.id} className="hover:bg-gray-50 rounded p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">{meeting.name}</h3>
@@ -134,6 +134,7 @@ export default function Meetings() {
           ref={formRef}
           action={formAction}
           onSubmit={handleReloadMeetings}
+          onKeyDown={handleKeyDown}
           className="space-y-4 flex flex-col justify-center items-center"
         >
           <Card>
