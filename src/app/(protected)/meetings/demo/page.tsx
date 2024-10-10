@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   STATE_CREATING,
   STATE_ERROR,
@@ -16,27 +16,32 @@ import {
   pageUrlFromRoomUrl,
   roomUrlFromPageUrl,
 } from "../../../../lib/utils";
-import { DailyProvider } from "@daily-co/daily-react";
+import { DailyProvider, useRoom } from "@daily-co/daily-react";
 import { VideoCall, HairCheck, Tray } from "../../../../components";
 import { Button } from "@/components/ui/button";
+import * as Ably from 'ably';
+import {AblyProvider, ChannelProvider} from 'ably/react'
 
 export default function Demo() {
   const [appState, setAppState] = useState(STATE_IDLE);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
+  // const [roomName, setRoomName] = useState<string>();
   const [callObject, setCallObject] = useState<DailyCall | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [meetingToken, setMeetingToken] = useState<string | null>(null);
+  const room = useRoom();
 
   /**
    * Create a new call room. This function will return the newly created room URL.
    * We'll need this URL when pre-authorizing (https://docs.daily.co/reference/rn-daily-js/instance-methods/pre-auth)
    * or joining (https://docs.daily.co/reference/rn-daily-js/instance-methods/join) a call.
    */
-  const createCall = useCallback(() => {
+  const createCall = useCallback(async () => {
     setAppState(STATE_CREATING);
     return createRoom()
       .then((room) => {
         if (room && room.url) {
+          // We need to set room name to user id here
           return room.url;
         } else {
           throw new Error("Invalid room data received");
@@ -60,6 +65,12 @@ export default function Demo() {
         return null;
       });
   }, []);
+
+  const client = useMemo(() => {
+    return new Ably.Realtime({
+      authUrl: `${process.env.NEXT_PUBLIC_URL_ROOT}/api/ably?roomName=${room?.name}`,
+    });
+  }, [room?.name]);
 
   const startDemo = () => {
     createCall().then((url) => {
@@ -290,10 +301,14 @@ export default function Demo() {
     // No API errors, we passed the hair check, and we've joined the call? Then show the call.
     if (showCall && callObject) {
       return (
+        <AblyProvider client={client}>
+          <ChannelProvider channelName={"transcriptions"}>
         <DailyProvider callObject={callObject}>
           <VideoCall />
           <Tray leaveCall={startLeavingCall} />
         </DailyProvider>
+        </ChannelProvider>
+        </AblyProvider>
       );
     }
 
