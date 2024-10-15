@@ -18,16 +18,6 @@ model action_plans {
   tasks       tasks[]
 }
 
-model companies {
-  id         String     @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
-  name       String
-  industry   String?
-  size       String?
-  created_at DateTime?  @default(now()) @db.Timestamptz(6)
-  contacts   contacts[]
-  meetings   meetings[]
-}
-
 model contact_relationships {
   id                                                          String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
   contact_id                                                  String?   @db.Char(21)
@@ -40,46 +30,35 @@ model contact_relationships {
 
 model contacts {
   id                                                                       String                  @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
-  company_id                                                               String?                 @db.Char(21)
+  account_id                                                               String?                 @db.Char(21)
   name                                                                     String
   email                                                                    String?
   phone                                                                    String?
   position                                                                 String?
   contact_relationships_contact_relationships_contact_idTocontacts         contact_relationships[] @relation("contact_relationships_contact_idTocontacts")
   contact_relationships_contact_relationships_related_contact_idTocontacts contact_relationships[] @relation("contact_relationships_related_contact_idTocontacts")
-  companies                                                                companies?              @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  companies                                                                accounts?               @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   meetings                                                                 meetings[]
   user_contacts                                                            user_contacts[]
 }
 
-model discovery_questions {
-  id                  String               @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
-  template_id         String?              @db.Char(21)
-  question            String
-  category            String?
-  question_priority   Int?
-  discovery_templates discovery_templates? @relation(fields: [template_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model discovery_templates {
-  id                  String                @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
-  organization_id     String?               @db.Char(21)
-  user_id             String?               @db.Char(21)
-  name                String
-  content             String
-  created_at          DateTime?             @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime?             @default(now()) @db.Timestamptz(6)
-  discovery_questions discovery_questions[]
-  organizations       organizations?        @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users               users?                @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  meetings            meetings[]
+  id              String         @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  organization_id String?        @db.Char(21)
+  user_id         String?        @db.Char(21)
+  name            String
+  content         String
+  created_at      DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime?      @default(now()) @db.Timestamptz(6)
+  organizations   organizations? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users           users?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  meetings        meetings[]
 }
 
 model meetings {
   id                    String                   @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
-  name                  String
   user_id               String                   @db.Char(21)
-  company_id            String?                  @db.Char(21)
+  account_id            String?                  @db.Char(21)
   contact_id            String?                  @db.Char(21)
   scheduled_at          DateTime?                @db.Timestamptz(6)
   duration              Unsupported("interval")?
@@ -87,8 +66,9 @@ model meetings {
   extracted_data        String?
   prior_context         String?
   discovery_template_id String?                  @db.Char
+  name                  String
   action_plans          action_plans[]
-  companies             companies?               @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  companies             accounts?                @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   contacts              contacts?                @relation(fields: [contact_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   discovery_templates   discovery_templates?     @relation(fields: [discovery_template_id], references: [id], onDelete: Restrict)
   users                 users                    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -148,4 +128,26 @@ model users {
   organization_users  organization_users[]
   tasks               tasks[]
   user_contacts       user_contacts[]
+}
+
+model accounts {
+  id            String          @id(map: "companies_pkey") @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name          String
+  industry      String?
+  size          String?
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  contacts      contacts[]
+  meetings      meetings[]
+  opportunities opportunities[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model opportunities {
+  id         String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name       String
+  stage      String?
+  amount     BigInt?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  account_id String?   @db.Char
+  accounts   accounts? @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

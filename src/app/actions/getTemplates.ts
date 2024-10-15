@@ -1,3 +1,4 @@
+// src/app/actions/getTemplates.ts
 "use server";
 
 import prisma from "@/lib/prisma";

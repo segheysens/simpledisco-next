@@ -13,7 +13,6 @@ import Tile from "./Tile";
 import UserMediaError from "./UserMediaError";
 
 import { useChannel } from "ably/react";
-// import * as Ably from "ably";
 
 export default function VideoCall() {
   const [getUserMediaError, setGetUserMediaError] = useState(false);
@@ -21,8 +20,7 @@ export default function VideoCall() {
   const daily = useDaily();
   // const room = useRoom();
   const [transcriptions, setTranscriptions] = useState<string[]>([]);
-  const {publish} = useChannel("transcriptions");
-
+  const { publish } = useChannel("transcriptions");
 
   useDailyEvent(
     "camera-error",
@@ -54,42 +52,43 @@ export default function VideoCall() {
   useDailyEvent(
     "transcription-message",
     useCallback((event: any) => {
-      const { participant, text } = event;
-      const userName = participant?.user_name || "Unknown";
+      const { participantId, text } = event;
+      // console.log(participant);
+      const userName = participantId || "Unknown";
       setTranscriptions((prev) => [...prev, `${userName}: ${text}`]);
       publish(`${userName}`, `${text}`);
     }, [])
   );
 
   const renderCallScreen = () => (
-      <div className={`${screens.length > 0 ? "is-screenshare" : "call"}`}>
-        <div className="tiles-container">
-          {participants.map((id) => (
-            <Tile
-              key={id}
-              id={id}
-              isLocal={id === localParticipant?.session_id}
-            />
-          ))}
-          {screens.map((screen) => (
-            <Tile key={screen.screenId} id={screen.session_id} isScreenShare />
-          ))}
-        </div>
-        {remoteParticipantIds.length === 0 && screens.length === 0 && (
-          <div className="info-box">
-            <h1>Waiting for others</h1>
-            <p>Invite someone by sharing this link:</p>
-            <span className="room-url">{window.location.href}</span>
-          </div>
-        )}
-        <DailyAudio />
-        <div className="transcriptions">
-          <h3>Transcriptions</h3>
-          {transcriptions.map((text, index) => (
-            <p key={index}>{text}</p>
-          ))}
-        </div>
+    <div className={`${screens.length > 0 ? "is-screenshare" : "call"}`}>
+      <div className="tiles-container">
+        {participants.map((id) => (
+          <Tile
+            key={id}
+            id={id}
+            isLocal={id === localParticipant?.session_id}
+          />
+        ))}
+        {screens.map((screen) => (
+          <Tile key={screen.screenId} id={screen.session_id} isScreenShare />
+        ))}
       </div>
+      {remoteParticipantIds.length === 0 && screens.length === 0 && (
+        <div className="info-box">
+          <h1>Waiting for others</h1>
+          <p>Invite someone by sharing this link:</p>
+          <span className="room-url">{window.location.href}</span>
+        </div>
+      )}
+      <DailyAudio />
+      <div className="transcriptions">
+        <h3>Transcriptions</h3>
+        {transcriptions.map((text, index) => (
+          <p key={index}>{text}</p>
+        ))}
+      </div>
+    </div>
   );
 
   return getUserMediaError ? <UserMediaError /> : renderCallScreen();

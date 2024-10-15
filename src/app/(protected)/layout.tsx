@@ -1,3 +1,5 @@
+// src/app/(protected)/layout.tsx
+
 "use client";
 
 import dynamic from "next/dynamic";
@@ -17,6 +19,7 @@ import {
   FaList,
   FaPencilAlt,
   FaCalendar,
+  FaBuilding,
 } from "react-icons/fa";
 import { PiDiscoBall } from "react-icons/pi";
 import { Command } from "cmdk";
@@ -30,8 +33,8 @@ const UserButton = dynamic(
 
 const navigation = [
   { name: "Meetings", href: "/meetings", icon: FaCalendar, current: true },
+  { name: "Accounts", href: "/accounts", icon: FaBuilding, current: false },
   { name: "Templates", href: "/templates", icon: FaPencilAlt, current: false },
-  { name: "Action Plans", href: "/action-plans", icon: FaList, current: false },
 ];
 
 export default function ProtectedLayout({

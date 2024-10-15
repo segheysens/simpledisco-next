@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { WebSocketStatus } from "@hocuspocus/provider";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -44,9 +45,42 @@ export function roomUrlFromPageUrl() {
   return match && match[1] ? decodeURIComponent(match[1]) : null;
 }
 
-export function pageUrlFromRoomUrl(roomUrl) {
+export function pageUrlFromRoomUrl(roomUrl: string | number | boolean | null) {
   return (
     window.location.href.split("?")[0] +
     (roomUrl ? `?roomUrl=${encodeURIComponent(roomUrl)}` : "")
   );
 }
+
+export const cssVar = (name: string, value?: string) => {
+  let currentName = name;
+  if (name.substring(0, 2) !== "--") {
+    currentName = `--${currentName}`;
+  }
+
+  if (value) {
+    document.documentElement.style.setProperty(currentName, value);
+  }
+
+  return getComputedStyle(document.body).getPropertyValue(currentName);
+};
+
+export function randomElement<T>(array: Array<T>): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+export const getConnectionText = (collabState: WebSocketStatus) => {
+  switch (collabState) {
+    case WebSocketStatus.Connected:
+      return `Connected`;
+
+    case WebSocketStatus.Connecting:
+      return `Connecting...`;
+
+    case WebSocketStatus.Disconnected:
+      return `Disconnected`;
+
+    default:
+      return `Connecting...`;
+  }
+};

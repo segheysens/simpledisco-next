@@ -1,3 +1,5 @@
+// File: src/app/page.tsx
+
 import {
   SignInButton,
   SignOutButton,

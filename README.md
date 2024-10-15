@@ -4,6 +4,8 @@
 
 First, make a copy of the `.env.example` and name it `.env` and fill in the secrets
 
+Second, create a copy of `.nrpc.example` and name it `.nprc` and add the token for TipTap
+
 Next, run `npm i && npx prisma pull && npx prisma generate`
 
 Then, run the development server:

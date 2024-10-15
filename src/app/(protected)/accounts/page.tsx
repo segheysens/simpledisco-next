@@ -1,3 +1,3 @@
 export default function ActionPlans() {
-  return <h1>Action Plans</h1>;
+  return <h1>Accounts</h1>;
 }

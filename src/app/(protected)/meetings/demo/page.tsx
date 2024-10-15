@@ -1,3 +1,5 @@
+// src/app/(protected)/meetings/demo/page.tsx
+
 "use client";
 
 import { useCallback, useEffect, useState, useMemo } from "react";
@@ -19,8 +21,8 @@ import {
 import { DailyProvider, useRoom } from "@daily-co/daily-react";
 import { VideoCall, HairCheck, Tray } from "../../../../components";
 import { Button } from "@/components/ui/button";
-import * as Ably from 'ably';
-import {AblyProvider, ChannelProvider} from 'ably/react'
+import * as Ably from "ably";
+import { AblyProvider, ChannelProvider } from "ably/react";
 
 export default function Demo() {
   const [appState, setAppState] = useState(STATE_IDLE);
@@ -86,24 +88,24 @@ export default function Demo() {
 
   const fetchMeetingToken = useCallback(async (roomName: string) => {
     try {
-      const response = await fetch('/api/dailyToken', {
-        method: 'POST',
+      const response = await fetch("/api/dailyToken", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ roomName }),
       });
-  
+
       if (!response.ok) {
-        throw new Error('Failed to fetch meeting token');
+        throw new Error("Failed to fetch meeting token");
       }
-  
+
       const data = await response.json();
       setMeetingToken(data.token);
       return data.token;
     } catch (error) {
-      console.error('Error fetching meeting token:', error);
-      setApiError('Failed to fetch meeting token');
+      console.error("Error fetching meeting token:", error);
+      setApiError("Failed to fetch meeting token");
       return null;
     }
   }, []);
@@ -111,23 +113,26 @@ export default function Demo() {
   /**
    * We've created a room, so let's start the hair check. We won't be joining the call yet.
    */
-  const startHairCheck = useCallback(async (url: string) => {
-    const newCallObject = DailyIframe.createCallObject();
-    setRoomUrl(url);
-    setCallObject(newCallObject);
-    setAppState(STATE_HAIRCHECK);
-  
-    const roomName = url.split('/').pop() || '';
-    const token = await fetchMeetingToken(roomName);
-  
-    if (token) {
-      await newCallObject.preAuth({ url, token });
-      await newCallObject.startCamera();
-    } else {
-      console.error('Failed to fetch meeting token');
-      setAppState(STATE_IDLE);
-    }
-  }, [fetchMeetingToken]);
+  const startHairCheck = useCallback(
+    async (url: string) => {
+      const newCallObject = DailyIframe.createCallObject();
+      setRoomUrl(url);
+      setCallObject(newCallObject);
+      setAppState(STATE_HAIRCHECK);
+
+      const roomName = url.split("/").pop() || "";
+      const token = await fetchMeetingToken(roomName);
+
+      if (token) {
+        await newCallObject.preAuth({ url, token });
+        await newCallObject.startCamera();
+      } else {
+        console.error("Failed to fetch meeting token");
+        setAppState(STATE_IDLE);
+      }
+    },
+    [fetchMeetingToken]
+  );
 
   /**
    * Once we pass the hair check, we can actually join the call.
@@ -303,11 +308,11 @@ export default function Demo() {
       return (
         <AblyProvider client={client}>
           <ChannelProvider channelName={"transcriptions"}>
-        <DailyProvider callObject={callObject}>
-          <VideoCall />
-          <Tray leaveCall={startLeavingCall} />
-        </DailyProvider>
-        </ChannelProvider>
+            <DailyProvider callObject={callObject}>
+              <VideoCall />
+              <Tray leaveCall={startLeavingCall} />
+            </DailyProvider>
+          </ChannelProvider>
         </AblyProvider>
       );
     }

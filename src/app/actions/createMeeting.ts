@@ -1,3 +1,4 @@
+// src/app/actions/createMeeting.ts
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -8,7 +9,10 @@ type State = {
   redirect?: string;
 };
 
-export async function createMeeting(prevState: State, formData: FormData): Promise<State> {
+export async function createMeeting(
+  prevState: State,
+  formData: FormData
+): Promise<State> {
   const name = formData.get("name") as string;
   const { userId }: { userId: string | null } = auth();
 
@@ -21,7 +25,7 @@ export async function createMeeting(prevState: State, formData: FormData): Promi
   }
 
   const user = await prisma.users.findUnique({ where: { idp_id: userId } });
-  console.info(userId)
+  console.info(userId);
 
   if (!user) {
     return { message: "User not found" };

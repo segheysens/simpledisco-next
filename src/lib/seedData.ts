@@ -7,7 +7,7 @@ async function seedDatabase() {
   // Seed organizations
   const organization = await prisma.organizations.create({
     data: {
-      name: faker.company.name(),
+      name: faker.account.name(),
     },
   });
 
@@ -21,8 +21,8 @@ async function seedDatabase() {
   // Seed companies
   const company = await prisma.companies.create({
     data: {
-      name: faker.company.name(),
-      industry: faker.company.buzzPhrase(),
+      name: faker.account.name(),
+      industry: faker.account.buzzPhrase(),
       size: faker.helpers.arrayElement(["Small", "Medium", "Large"]),
     },
   });
@@ -30,7 +30,7 @@ async function seedDatabase() {
   // Seed contacts
   const contact = await prisma.contacts.create({
     data: {
-      company_id: company.id,
+      account_id: account.id,
       name: faker.person.fullName(),
       email: faker.internet.email(),
       phone: faker.phone.number(),
@@ -42,7 +42,7 @@ async function seedDatabase() {
   const meeting = await prisma.meetings.create({
     data: {
       user_id: user.id,
-      company_id: company.id,
+      account_id: account.id,
       contact_id: contact.id,
       scheduled_at: faker.date.future(),
       transcription: faker.lorem.paragraph(),

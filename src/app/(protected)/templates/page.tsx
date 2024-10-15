@@ -1,3 +1,5 @@
+// src/app/(protected)/templates/page.tsx
+
 "use client";
 import { createTemplate } from "@/app/actions/createTemplate";
 import { getTemplates } from "@/app/actions/getTemplates";

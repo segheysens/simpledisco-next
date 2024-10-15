@@ -1,3 +1,5 @@
+// src/app/(protected)/meetings/page.tsx
+
 "use client";
 import { createMeeting } from "@/app/actions/createMeeting";
 import { getMeetings } from "@/app/actions/getMeetings";
@@ -12,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { meetings as Meeting } from "@prisma/client";
 
@@ -146,7 +147,7 @@ export default function Meetings() {
                 Make a discovery meeting to use in meetings
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-6 pt-0 h-full">
               <div className="grid w-full items-center gap-4">
                 <fieldset className="flex flex-col space-y-1.5">
                   <label
