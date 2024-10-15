@@ -136,6 +136,7 @@ model accounts {
   industry      String?
   size          String?
   created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  tiptap_doc_id String?
   contacts      contacts[]
   meetings      meetings[]
   opportunities opportunities[]
@@ -143,11 +144,13 @@ model accounts {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model opportunities {
-  id         String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
-  name       String
-  stage      String?
-  amount     BigInt?
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  account_id String?   @db.Char
-  accounts   accounts? @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id          String    @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  name        String
+  stage       String?
+  amount      BigInt?
+  created_at  DateTime? @default(now()) @db.Timestamptz(6)
+  account_id  String?   @db.Char
+  document_id String
+  close_date  DateTime? @default(dbgenerated("CURRENT_DATE")) @db.Date
+  accounts    accounts? @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

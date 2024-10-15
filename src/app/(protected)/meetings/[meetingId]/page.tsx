@@ -14,6 +14,9 @@ import { BlockEditor } from "@/components/BlockEditor";
 import { Doc as YDoc } from "yjs";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { getUser } from "@/app/actions/getUser";
+import { getAccount } from "@/app/actions/geAccount";
 
 function getMeetingData(meetingId: string) {
   console.log("meetingData:");
@@ -30,9 +33,12 @@ export default function MeetingPage({
   params: { meetingId: string };
 }) {
   console.log("params.meetingId:");
-  console.log(params.meetingId);
   const meetingData = getMeetingData(params.meetingId);
   const [provider, setProvider] = useState<TiptapCollabProvider>();
+  // const [docID, setDocID] = useEffect<string>();
+  const [document, setDocument] = useState<YDoc>();
+  // const {userId} = useAuth();
+
   // const [content, setContent] = useState(meetingData?.prepDoc || "");
   // const [isEditing, setIsEditing] = useState(false);
 
@@ -41,18 +47,47 @@ export default function MeetingPage({
   }
 
   useEffect(() => {
+    const fetchDocument = async () => {
+      try {
+        const response = await fetch(
+          `https://${process.env.TIPTAP_APP_ID}.collab.tiptap.cloud/api/documents/${meetingData.tiptap_doc_id}?format=yjs`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `${process.env.TIPTAP_AUTH_TOKEN}`,
+              // Add any necessary authentication headers here
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setDocument(data);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    fetchDocument();
+  }, [meetingData]);
+
+  useEffect(() => {
     // example Ydoc for starting the provider:
-    const doc = new YDoc();
+    // const doc = new YDoc();
 
     setProvider(
       new TiptapCollabProvider({
         name: "23983298233", // Document identifier
-        appId: "j9y4or91", // replace with YOUR_APP_ID from Cloud dashboard
+        appId: process.env.TIPTAP_APP_ID, // replace with YOUR_APP_ID from Cloud dashboard
         token: "YOUR_JWT", // Authentication token
-        document: doc,
+        document: document,
       })
     );
-  }, []);
+  }, [document]);
 
   return (
     <Card className="w-full max-w-7xl mx-auto">

@@ -96,6 +96,8 @@
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
+    "y-prosemirror": "^1.2.12",
+    "y-protocols": "^1.0.6",
     "yjs": "^13.6.19",
     "zod": "^3.23.8"
   },
