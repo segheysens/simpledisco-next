@@ -18,7 +18,6 @@ import {
 import Link from "next/link";
 import { meetings as Meeting, accounts as Account } from "@prisma/client";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 
 type State = {
   message: string | null;

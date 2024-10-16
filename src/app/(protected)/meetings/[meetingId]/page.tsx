@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
-import { getAccount } from "@/app/actions/getAccount";
 import * as Y from 'yjs';
 import { TiptapCollabProvider } from '@hocuspocus/provider';
 
