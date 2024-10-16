@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { meetings as Meeting, accounts as Account } from "@prisma/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 type State = {
   message: string | null;
@@ -41,6 +42,7 @@ export default function Meetings() {
   const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
   const [reloadMeetings, setReloadMeetings] = useState<boolean>(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -174,18 +176,28 @@ export default function Meetings() {
                   >
                     Account
                   </label>
-                  <Select name="account_id">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an account" />
-                    </SelectTrigger>
-                    <SelectContent>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start">
+                        {selectedAccount ? selectedAccount.name : "Select an account"}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
                       {accounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id}>
+                        <DropdownMenuItem
+                          key={account.id}
+                          onSelect={() => setSelectedAccount(account)}
+                        >
                           {account.name}
-                        </SelectItem>
+                        </DropdownMenuItem>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <input
+                    type="hidden"
+                    name="account_id"
+                    value={selectedAccount?.id || ""}
+                  />
                 </fieldset>
                 <Button type="submit">Create Meeting</Button>
                 {state.message && (
