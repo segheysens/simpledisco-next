@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { createTipTapDocument } from "./createTipTapDocument";
 
 type State = {
   message: string | null;
@@ -30,10 +31,13 @@ export async function createAccount(
   }
 
   try {
+    const tiptapDocId = await createTipTapDocument(name);
+
     const account = await prisma.accounts.create({
       data: {
         name,
         industry: industry || null,
+        tiptap_doc_id: tiptapDocId,
       },
     });
 
