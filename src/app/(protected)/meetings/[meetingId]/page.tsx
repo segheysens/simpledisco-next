@@ -32,17 +32,20 @@ export default function MeetingPage({
         const meeting = await getMeeting(params.meetingId);
         setMeetingData(meeting);
 
-        if (meeting && meeting.tiptap_doc_id) {
-          const newYdoc = new Y.Doc();
-          const newProvider = new HocuspocusProvider({
-            url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
-            name: meeting.tiptap_doc_id,
-            document: newYdoc,
-            token: userId, // Use the user's ID as the token
-          });
+        if (meeting && meeting.account_id) {
+          const account = await getAccount(meeting.account_id);
+          if (account && account.tiptap_doc_id) {
+            const newYdoc = new Y.Doc();
+            const newProvider = new HocuspocusProvider({
+              url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
+              name: account.tiptap_doc_id,
+              document: newYdoc,
+              token: userId, // Use the user's ID as the token
+            });
 
-          setYdoc(newYdoc);
-          setProvider(newProvider);
+            setYdoc(newYdoc);
+            setProvider(newProvider);
+          }
         }
       }
     }

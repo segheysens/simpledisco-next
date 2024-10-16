@@ -40,3 +40,30 @@ export async function getAccount(accountId: string) {
     throw new Error("Failed to fetch account");
   }
 }
+"use server";
+
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+
+export async function getAccount(accountId: string) {
+  const { userId }: { userId: string | null } = auth();
+
+  if (!userId) {
+    throw new Error("User not authenticated");
+  }
+
+  try {
+    const account = await prisma.accounts.findUnique({
+      where: { id: accountId },
+    });
+
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    return account;
+  } catch (error) {
+    console.error("Error fetching account:", error);
+    throw new Error("Failed to fetch account");
+  }
+}
