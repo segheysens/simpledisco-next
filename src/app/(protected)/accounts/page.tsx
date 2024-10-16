@@ -1,6 +1,7 @@
 "use client";
 import { createAccount } from "@/app/actions/createAccount";
 import { getAccounts } from "@/app/actions/getAccounts";
+import { useCallback } from "react";
 import { useFormState } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -36,24 +37,24 @@ export default function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [reloadAccounts, setReloadAccounts] = useState<boolean>(false);
 
+  const fetchAccounts = useCallback(async () => {
+    const allAccounts = await getAccounts();
+    setAccounts(allAccounts);
+    setReloadAccounts(false);
+  }, []);
+
   useEffect(() => {
-    async function fetchAccounts() {
-      const allAccounts = await getAccounts();
-      setAccounts(allAccounts);
-      setReloadAccounts(false);
-    }
-
     fetchAccounts();
-  }, [reloadAccounts]);
+  }, [fetchAccounts, reloadAccounts]);
 
-  function handleReloadAccounts(event: React.FormEvent<HTMLFormElement>) {
+  const handleReloadAccounts = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    formAction(new FormData(event.currentTarget));
-    setReloadAccounts(true);
+    await formAction(new FormData(event.currentTarget));
+    await fetchAccounts();
     if (formRef.current) {
       formRef.current.reset();
     }
-  }
+  }, [formAction, fetchAccounts]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
