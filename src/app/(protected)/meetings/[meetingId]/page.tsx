@@ -14,9 +14,7 @@ import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
 import * as Y from 'yjs';
 import { TiptapCollabProvider } from '@hocuspocus/provider';
-import * as Y from 'yjs';
-import { TiptapCollabProvider } from '@hocuspocus/provider';
-import { BlockEditor } from "@/components/BlockEditor";
+
 
 export default function MeetingPage({
   params,
@@ -119,7 +117,7 @@ export default function MeetingPage({
                 provider={new TiptapCollabProvider({
                   appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID!,
                   name: meetingData.account_id,
-                  token: userId,
+                  token: process.env.NEXT_PUBLIC_TIPTAP_AUTH_TOKEN,
                 })}
                 hasCollab={true}
               />
