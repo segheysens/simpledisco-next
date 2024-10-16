@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
+import { getAccount } from "@/app/actions/getAccount";
 import * as Y from 'yjs';
 import { TiptapCollabProvider } from '@hocuspocus/provider';
 
@@ -22,10 +23,11 @@ export default function MeetingPage({
   params: { meetingId: string };
 }) {
   const [meetingData, setMeetingData] = useState<any>(null);
+  const [accountData, setAccountData] = useState<any>(null);
   const { userId } = useAuth();
 
   useEffect(() => {
-    async function fetchMeetingData() {
+    async function fetchData() {
       if (!userId) {
         console.error("User ID is not available");
         return;
@@ -43,16 +45,23 @@ export default function MeetingPage({
         }
 
         setMeetingData(meeting);
+
+        if (meeting.account_id) {
+          const account = await getAccount(meeting.account_id);
+          console.log("Account data:", account);
+          setAccountData(account);
+        }
       } catch (error) {
-        console.error("Error in fetchMeetingData:", error);
+        console.error("Error in fetchData:", error);
         setMeetingData(null);
+        setAccountData(null);
       }
     }
 
-    fetchMeetingData();
+    fetchData();
   }, [params.meetingId, userId]);
 
-  if (!meetingData) {
+  if (!meetingData || !accountData) {
     return <div>Loading...</div>;
   }
 
@@ -111,12 +120,12 @@ export default function MeetingPage({
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-2">
-            {meetingData.account_id && userId && (
+            {accountData.tiptap_doc_id && userId && (
               <BlockEditor
                 ydoc={new Y.Doc()}
                 provider={new TiptapCollabProvider({
                   appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID!,
-                  name: meetingData.account_id,
+                  name: accountData.tiptap_doc_id,
                   token: process.env.NEXT_PUBLIC_TIPTAP_AUTH_TOKEN,
                 })}
                 hasCollab={true}
