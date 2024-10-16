@@ -5,18 +5,32 @@ export async function createTipTapDocument(name: string): Promise<string> {
     const response = await fetch('https://api.tiptap.dev/v1/documents', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.TIPTAP_AUTH_TOKEN}`,
+        'Authorization': `Bearer ${process.env.TIPTAP_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: name }),
+      body: JSON.stringify({
+        name: name,
+        content: {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                { type: 'text', text: 'Welcome to your new document!' }
+              ]
+            }
+          ]
+        }
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json();
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
     }
 
     const data = await response.json();
-    return data.id;
+    return data.document.id;
   } catch (error) {
     console.error('Error creating TipTap document:', error);
     throw new Error('Failed to create TipTap document');

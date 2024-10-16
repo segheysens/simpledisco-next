@@ -31,7 +31,7 @@ export async function createAccount(
   }
 
   try {
-    const tiptapDocId = await createTipTapDocument(name);
+    const tiptapDocId = await createTipTapDocument(`${name} - Account Document`);
 
     const account = await prisma.accounts.create({
       data: {
@@ -40,6 +40,8 @@ export async function createAccount(
         tiptap_doc_id: tiptapDocId,
       },
     });
+
+    console.log(`Created account with TipTap document ID: ${tiptapDocId}`);
 
     return { message: null };
   } catch (error) {
