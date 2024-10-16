@@ -68,7 +68,11 @@ export default function MeetingPage({
 
         console.log("TipTap Doc ID:", account.tiptap_doc_id);
         const newYdoc = new Y.Doc();
-        const newProvider = new HocuspocusProvider({
+        console.log("NEXT_PUBLIC_HOCUSPOCUS_URL:", process.env.NEXT_PUBLIC_HOCUSPOCUS_URL);
+        console.log("TipTap Doc ID:", account.tiptap_doc_id);
+        console.log("User ID:", userId);
+
+        const providerConfig = {
           url: process.env.NEXT_PUBLIC_HOCUSPOCUS_URL,
           name: account.tiptap_doc_id,
           document: newYdoc,
@@ -79,10 +83,19 @@ export default function MeetingPage({
           onDisconnect: () => {
             console.log("Disconnected from Hocuspocus server");
           },
-          onError: (error) => {
+          onError: (error: any) => {
             console.error("Hocuspocus error:", error);
           },
-        });
+        };
+
+        console.log("HocuspocusProvider config:", providerConfig);
+
+        const newProvider = new HocuspocusProvider(providerConfig);
+
+        if (!newProvider.configuration.websocketProvider) {
+          console.error("WebSocket provider is undefined");
+          throw new Error("WebSocket provider initialization failed");
+        }
 
         console.log("New Y.Doc created:", newYdoc);
         console.log("New HocuspocusProvider created:", newProvider);
