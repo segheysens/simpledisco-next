@@ -1,6 +1,6 @@
 "use server";
 
-export async function createTipTapDocument(name: string, accountId: string): Promise<string> {
+export async function createTipTapDocument(name: string, tiptapDocId: string): Promise<void> {
   try {
     const response = await fetch('https://api.tiptap.dev/v1/documents', {
       method: 'POST',
@@ -9,6 +9,7 @@ export async function createTipTapDocument(name: string, accountId: string): Pro
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        id: tiptapDocId,
         name: name,
         content: {
           type: 'doc',
@@ -22,7 +23,7 @@ export async function createTipTapDocument(name: string, accountId: string): Pro
           ]
         },
         metadata: {
-          accountId: accountId
+          accountId: tiptapDocId
         }
       }),
     });
@@ -32,8 +33,7 @@ export async function createTipTapDocument(name: string, accountId: string): Pro
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
     }
 
-    const data = await response.json();
-    return data.document.id;
+    console.log(`TipTap document created with ID: ${tiptapDocId}`);
   } catch (error) {
     console.error('Error creating TipTap document:', error);
     throw new Error('Failed to create TipTap document');

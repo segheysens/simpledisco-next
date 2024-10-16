@@ -32,19 +32,18 @@ export async function createAccount(
   }
 
   try {
-    const accountId = nanoid(21);
-    const tiptapDocId = await createTipTapDocument(`${name} - Account Document`, accountId);
+    const tiptapDocId = nanoid(21);
+    await createTipTapDocument(`${name} - Account Document`, tiptapDocId);
 
     const account = await prisma.accounts.create({
       data: {
-        id: accountId,
         name,
         industry: industry || null,
         tiptap_doc_id: tiptapDocId,
       },
     });
 
-    console.log(`Created account with ID: ${accountId} and TipTap document ID: ${tiptapDocId}`);
+    console.log(`Created account with ID: ${account.id} and TipTap document ID: ${tiptapDocId}`);
 
     return { message: null };
   } catch (error) {
