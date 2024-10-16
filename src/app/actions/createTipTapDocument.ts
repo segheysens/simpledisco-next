@@ -1,19 +1,22 @@
 "use server";
 
-import axios from 'axios';
-
 export async function createTipTapDocument(name: string): Promise<string> {
   try {
-    const response = await axios.post('https://api.tiptap.dev/v1/documents', {
-      name: name,
-    }, {
+    const response = await fetch('https://api.tiptap.dev/v1/documents', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.TIPTAP_API_KEY}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ name: name }),
     });
 
-    return response.data.id;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.id;
   } catch (error) {
     console.error('Error creating TipTap document:', error);
     throw new Error('Failed to create TipTap document');
