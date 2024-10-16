@@ -13,7 +13,7 @@
     "@daily-co/daily-js": "^0.72.1",
     "@daily-co/daily-react": "^0.21.0",
     "@headlessui/react": "^2.1.9",
-    "@hocuspocus/provider": "^2.13.7",
+    "@hocuspocus/provider": "^2.9.0",
     "@lexical/markdown": "^0.18.0",
     "@lexical/react": "^0.18.0",
     "@prisma/client": "^5.20.0",

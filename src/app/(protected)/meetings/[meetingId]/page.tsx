@@ -14,7 +14,7 @@ import { getUser } from "@/app/actions/getUser";
 import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
 import * as Y from 'yjs';
-import { HocuspocusProvider } from '@hocuspocus/provider';
+import { TiptapCollabProvider } from '@hocuspocus/provider';
 
 export default function MeetingPage({
   params,
@@ -22,7 +22,7 @@ export default function MeetingPage({
   params: { meetingId: string };
 }) {
   const [meetingData, setMeetingData] = useState<any>(null);
-  const [provider, setProvider] = useState<HocuspocusProvider | null>(null);
+  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
   const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
   const { userId } = useAuth();
 
@@ -78,47 +78,23 @@ export default function MeetingPage({
           throw new Error("Hocuspocus URL is not configured");
         }
 
-        const providerConfig = {
-          url: hocuspocusUrl,
+        const newProvider = new TiptapCollabProvider({
+          appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID,
           name: account.tiptap_doc_id,
-          document: newYdoc,
           token: userId,
-          onConnect: () => {
-            console.log("Connected to Hocuspocus server");
-          },
-          onDisconnect: () => {
-            console.log("Disconnected from Hocuspocus server");
-          },
-          onError: (error: any) => {
-            console.error("Hocuspocus error:", error);
-          },
-        };
-
-        console.log("HocuspocusProvider config:", providerConfig);
-
-        const newProvider = new HocuspocusProvider(providerConfig);
-
-        // Wait for the provider to connect before setting it
-        await new Promise<void>((resolve, reject) => {
-          newProvider.on('connect', () => {
-            console.log("HocuspocusProvider connected");
-            resolve();
-          });
-          newProvider.on('error', (error) => {
-            console.error("HocuspocusProvider connection error:", error);
-            reject(error);
-          });
-          // Set a timeout in case the connection takes too long
-          setTimeout(() => reject(new Error("HocuspocusProvider connection timeout")), 5000);
+          document: newYdoc,
         });
 
-        if (!newProvider.configuration.websocketProvider) {
-          console.error("WebSocket provider is undefined");
-          throw new Error("WebSocket provider initialization failed");
-        }
+        console.log("TiptapCollabProvider config:", newProvider);
+
+        newProvider.on('status', ({ status }) => {
+          console.log('Connection status:', status)
+        })
+
+        await newProvider.connect();
 
         console.log("New Y.Doc created:", newYdoc);
-        console.log("New HocuspocusProvider created:", newProvider);
+        console.log("New TiptapCollabProvider created:", newProvider);
 
         setYdoc(newYdoc);
         setProvider(newProvider);
