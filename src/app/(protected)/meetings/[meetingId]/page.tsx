@@ -14,11 +14,7 @@ import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
 import * as Y from 'yjs';
 import { TiptapCollabProvider } from '@hocuspocus/provider';
-import { EditorContent, useEditor } from '@tiptap/react';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
-import Collaboration from '@tiptap/extension-collaboration';
+import { BlockEditor } from "@/components/BlockEditor";
 
 export default function MeetingPage({
   params,
@@ -26,19 +22,7 @@ export default function MeetingPage({
   params: { meetingId: string };
 }) {
   const [meetingData, setMeetingData] = useState<any>(null);
-  const [ydoc] = useState(() => new Y.Doc());
   const { userId } = useAuth();
-
-  const editor = useEditor({
-    extensions: [
-      Document,
-      Paragraph,
-      Text,
-      Collaboration.configure({
-        document: ydoc,
-      }),
-    ],
-  });
 
   useEffect(() => {
     async function fetchMeetingData() {
@@ -59,42 +43,6 @@ export default function MeetingPage({
         }
 
         setMeetingData(meeting);
-
-        if (!meeting.account_id) {
-          console.error("Meeting found, but Account ID is missing. Meeting ID:", meeting.id);
-          return;
-        }
-
-        console.log("Fetching account data for ID:", meeting.account_id);
-        const account = await getAccount(meeting.account_id);
-        console.log("Account data:", account);
-
-        if (!account || !account.tiptap_doc_id) {
-          console.error("Account not found or TipTap Doc ID is missing");
-          return;
-        }
-
-        const provider = new TiptapCollabProvider({
-          name: account.tiptap_doc_id,
-          appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID || '',
-          token: userId,
-          document: ydoc,
-          onSynced() {
-            if (!ydoc.getMap('config').get('initialContentLoaded') && editor) {
-              ydoc.getMap('config').set('initialContentLoaded', true);
-              editor.commands.setContent(`
-                <p>This is the initial content for the meeting document.</p>
-                <p>You can start editing and collaborating here.</p>
-              `);
-            }
-          },
-        });
-
-        console.log("TiptapCollabProvider created");
-
-        return () => {
-          provider.destroy();
-        };
       } catch (error) {
         console.error("Error in fetchMeetingData:", error);
         setMeetingData(null);
@@ -102,7 +50,7 @@ export default function MeetingPage({
     }
 
     fetchMeetingData();
-  }, [params.meetingId, userId, ydoc, editor]);
+  }, [params.meetingId, userId]);
 
   if (!meetingData) {
     return <div>Loading...</div>;
@@ -163,7 +111,12 @@ export default function MeetingPage({
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-2">
-            <EditorContent editor={editor} />
+            {meetingData.account_id && (
+              <BlockEditor
+                documentId={meetingData.account_id}
+                userId={userId || ''}
+              />
+            )}
           </div>
         </div>
       </CardContent>
