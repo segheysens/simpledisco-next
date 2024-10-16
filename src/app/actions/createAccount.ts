@@ -28,3 +28,40 @@ export async function getAccount(accountId: string) {
     throw new Error("Failed to fetch account");
   }
 }
+"use server";
+
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
+
+type State = {
+  message: string | null;
+};
+
+export async function createAccount(prevState: State, formData: FormData) {
+  const { userId }: { userId: string | null } = auth();
+
+  if (!userId) {
+    return { message: "User not authenticated" };
+  }
+
+  const name = formData.get("name") as string;
+  const industry = formData.get("industry") as string;
+
+  if (!name) {
+    return { message: "Name is required" };
+  }
+
+  try {
+    await prisma.accounts.create({
+      data: {
+        name,
+        industry: industry || null,
+      },
+    });
+
+    return { message: null };
+  } catch (error) {
+    console.error("Error creating account:", error);
+    return { message: "Failed to create account" };
+  }
+}
