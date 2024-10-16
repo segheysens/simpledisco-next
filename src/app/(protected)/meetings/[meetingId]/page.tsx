@@ -34,8 +34,9 @@ export default function MeetingPage({
 
         if (meeting && meeting.account_id) {
           const account = await getAccount(meeting.account_id);
+          console.log("Account:", account);
           if (account && account.tiptap_doc_id) {
-            console.log("hello")
+            console.log("TipTap Doc ID:", account.tiptap_doc_id);
             const newYdoc = new Y.Doc();
             const newProvider = new HocuspocusProvider({
               url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
@@ -44,9 +45,16 @@ export default function MeetingPage({
               token: userId, // Use the user's ID as the token
             });
 
+            console.log("New Y.Doc created:", newYdoc);
+            console.log("New HocuspocusProvider created:", newProvider);
+
             setYdoc(newYdoc);
             setProvider(newProvider);
+          } else {
+            console.error("Account or TipTap Doc ID not found");
           }
+        } else {
+          console.error("Meeting or Account ID not found");
         }
       }
     }
@@ -119,12 +127,15 @@ export default function MeetingPage({
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-2">
-            {ydoc && provider && (
+            {console.log("Render - ydoc:", ydoc, "provider:", provider)}
+            {ydoc && provider ? (
               <BlockEditor
                 hasCollab={true}
                 ydoc={ydoc}
                 provider={provider}
               />
+            ) : (
+              <div>Loading editor...</div>
             )}
           </div>
         </div>
