@@ -72,8 +72,14 @@ export default function MeetingPage({
         console.log("TipTap Doc ID:", account.tiptap_doc_id);
         console.log("User ID:", userId);
 
+        const hocuspocusUrl = process.env.NEXT_PUBLIC_HOCUSPOCUS_URL;
+        if (!hocuspocusUrl) {
+          console.error("NEXT_PUBLIC_HOCUSPOCUS_URL is not set");
+          throw new Error("Hocuspocus URL is not configured");
+        }
+
         const providerConfig = {
-          url: process.env.NEXT_PUBLIC_HOCUSPOCUS_URL,
+          url: hocuspocusUrl,
           name: account.tiptap_doc_id,
           document: newYdoc,
           token: userId,
@@ -91,6 +97,20 @@ export default function MeetingPage({
         console.log("HocuspocusProvider config:", providerConfig);
 
         const newProvider = new HocuspocusProvider(providerConfig);
+
+        // Wait for the provider to connect before setting it
+        await new Promise<void>((resolve, reject) => {
+          newProvider.on('connect', () => {
+            console.log("HocuspocusProvider connected");
+            resolve();
+          });
+          newProvider.on('error', (error) => {
+            console.error("HocuspocusProvider connection error:", error);
+            reject(error);
+          });
+          // Set a timeout in case the connection takes too long
+          setTimeout(() => reject(new Error("HocuspocusProvider connection timeout")), 5000);
+        });
 
         if (!newProvider.configuration.websocketProvider) {
           console.error("WebSocket provider is undefined");
