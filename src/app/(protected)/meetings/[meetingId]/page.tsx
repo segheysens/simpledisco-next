@@ -10,11 +10,15 @@ import { LuCalendar, LuClock, LuVideo, LuUsers } from "react-icons/lu";
 import { BlockEditor } from "@/components/BlockEditor";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { getUser } from "@/app/actions/getUser";
 import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
 import * as Y from 'yjs';
 import { TiptapCollabProvider } from '@hocuspocus/provider';
+import { EditorContent, useEditor } from '@tiptap/react';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import Collaboration from '@tiptap/extension-collaboration';
 
 export default function MeetingPage({
   params,
@@ -22,9 +26,19 @@ export default function MeetingPage({
   params: { meetingId: string };
 }) {
   const [meetingData, setMeetingData] = useState<any>(null);
-  const [provider, setProvider] = useState<TiptapCollabProvider | null>(null);
-  const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
+  const [ydoc] = useState(() => new Y.Doc());
   const { userId } = useAuth();
+
+  const editor = useEditor({
+    extensions: [
+      Document,
+      Paragraph,
+      Text,
+      Collaboration.configure({
+        document: ydoc,
+      }),
+    ],
+  });
 
   useEffect(() => {
     async function fetchMeetingData() {
@@ -55,49 +69,32 @@ export default function MeetingPage({
         const account = await getAccount(meeting.account_id);
         console.log("Account data:", account);
 
-        if (!account) {
-          console.error("Account not found for ID:", meeting.account_id);
+        if (!account || !account.tiptap_doc_id) {
+          console.error("Account not found or TipTap Doc ID is missing");
           return;
         }
 
-        if (!account.tiptap_doc_id) {
-          console.error("Account found, but TipTap Doc ID is missing. Account ID:", account.id);
-          // You might want to handle this case, e.g., by creating a new TipTap document
-          return;
-        }
-
-        console.log("TipTap Doc ID:", account.tiptap_doc_id);
-        const newYdoc = new Y.Doc();
-        console.log("NEXT_PUBLIC_HOCUSPOCUS_URL:", process.env.NEXT_PUBLIC_HOCUSPOCUS_URL);
-        console.log("TipTap Doc ID:", account.tiptap_doc_id);
-        console.log("User ID:", userId);
-
-        const hocuspocusUrl = process.env.NEXT_PUBLIC_HOCUSPOCUS_URL;
-        if (!hocuspocusUrl) {
-          console.error("NEXT_PUBLIC_HOCUSPOCUS_URL is not set");
-          throw new Error("Hocuspocus URL is not configured");
-        }
-
-        const newProvider = new TiptapCollabProvider({
-          appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID,
+        const provider = new TiptapCollabProvider({
           name: account.tiptap_doc_id,
+          appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID || '',
           token: userId,
-          document: newYdoc,
+          document: ydoc,
+          onSynced() {
+            if (!ydoc.getMap('config').get('initialContentLoaded') && editor) {
+              ydoc.getMap('config').set('initialContentLoaded', true);
+              editor.commands.setContent(`
+                <p>This is the initial content for the meeting document.</p>
+                <p>You can start editing and collaborating here.</p>
+              `);
+            }
+          },
         });
 
-        console.log("TiptapCollabProvider config:", newProvider);
+        console.log("TiptapCollabProvider created");
 
-        newProvider.on('status', ({ status }) => {
-          console.log('Connection status:', status)
-        })
-
-        await newProvider.connect();
-
-        console.log("New Y.Doc created:", newYdoc);
-        console.log("New TiptapCollabProvider created:", newProvider);
-
-        setYdoc(newYdoc);
-        setProvider(newProvider);
+        return () => {
+          provider.destroy();
+        };
       } catch (error) {
         console.error("Error in fetchMeetingData:", error);
         setMeetingData(null);
@@ -105,14 +102,7 @@ export default function MeetingPage({
     }
 
     fetchMeetingData();
-
-    return () => {
-      if (provider) {
-        console.log("Destroying provider");
-        provider.destroy();
-      }
-    };
-  }, [params.meetingId, userId]);
+  }, [params.meetingId, userId, ydoc, editor]);
 
   if (!meetingData) {
     return <div>Loading...</div>;
@@ -173,26 +163,7 @@ export default function MeetingPage({
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-2">
-            {console.log("Render - ydoc:", ydoc, "provider:", provider)}
-            {ydoc && provider ? (
-              <BlockEditor
-                hasCollab={true}
-                ydoc={ydoc}
-                provider={provider}
-              />
-            ) : (
-              <div>
-                {!meetingData ? (
-                  "Loading meeting data..."
-                ) : !meetingData.account_id ? (
-                  "Error: Meeting has no associated account"
-                ) : !ydoc || !provider ? (
-                  "Error: Failed to initialize collaboration. Check console for details."
-                ) : (
-                  "Loading editor..."
-                )}
-              </div>
-            )}
+            <EditorContent editor={editor} />
           </div>
         </div>
       </CardContent>
