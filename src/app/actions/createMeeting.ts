@@ -14,6 +14,7 @@ export async function createMeeting(
   formData: FormData
 ): Promise<State> {
   const name = formData.get("name") as string;
+  const accountId = formData.get("account_id") as string;
   const { userId }: { userId: string | null } = auth();
 
   if (!userId) {
@@ -22,6 +23,10 @@ export async function createMeeting(
 
   if (!name) {
     return { message: "Name is required" };
+  }
+
+  if (!accountId) {
+    return { message: "Account is required" };
   }
 
   const user = await prisma.users.findUnique({ where: { idp_id: userId } });
@@ -33,7 +38,11 @@ export async function createMeeting(
 
   try {
     const meeting = await prisma.meetings.create({
-      data: { user_id: user.id, name: name },
+      data: { 
+        user_id: user.id, 
+        name: name,
+        account_id: accountId
+      },
     });
 
     return { message: null, redirect: `/app/meetings/${meeting.id}` };

@@ -3,6 +3,7 @@
 "use client";
 import { createMeeting } from "@/app/actions/createMeeting";
 import { getMeetings } from "@/app/actions/getMeetings";
+import { getAccounts } from "@/app/actions/getAccounts";
 import { useFormState } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { meetings as Meeting } from "@prisma/client";
+import { meetings as Meeting, accounts as Account } from "@prisma/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type State = {
   message: string | null;
@@ -38,12 +40,12 @@ export default function Meetings() {
   const [upcomingMeetings, setUpcomingMeetings] = useState<Meeting[]>([]);
   const [recentMeetings, setRecentMeetings] = useState<Meeting[]>([]);
   const [reloadMeetings, setReloadMeetings] = useState<boolean>(false);
+  const [accounts, setAccounts] = useState<Account[]>([]);
 
   useEffect(() => {
-    async function fetchMeetings() {
+    async function fetchData() {
       const allMeetings = await getMeetings();
-      // console.log("allMeetings:");
-      // console.log(allMeetings);
+      const allAccounts = await getAccounts();
       const now = new Date();
 
       const upcoming = allMeetings
@@ -64,10 +66,11 @@ export default function Meetings() {
 
       setUpcomingMeetings(upcoming);
       setRecentMeetings(recent);
+      setAccounts(allAccounts);
       setReloadMeetings(false);
     }
 
-    fetchMeetings();
+    fetchData();
   }, [reloadMeetings]);
 
   function handleReloadMeetings(event: React.FormEvent<HTMLFormElement>) {
@@ -163,6 +166,26 @@ export default function Meetings() {
                     placeholder="e.g. 'Customer Co. - Workflow Mapping'"
                     required
                   />
+                </fieldset>
+                <fieldset className="flex flex-col space-y-1.5">
+                  <label
+                    htmlFor="account_id"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Account
+                  </label>
+                  <Select name="account_id">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </fieldset>
                 <Button type="submit">Create Meeting</Button>
                 {state.message && (
