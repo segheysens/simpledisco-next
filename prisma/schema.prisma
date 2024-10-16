@@ -131,7 +131,7 @@ model users {
 }
 
 model accounts {
-  id            String          @id(map: "companies_pkey") @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
+  id            String          @id @default(dbgenerated("generate_nanoid(21)")) @db.Char(21)
   name          String
   industry      String?
   size          String?
