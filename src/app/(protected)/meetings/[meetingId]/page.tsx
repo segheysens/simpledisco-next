@@ -14,6 +14,8 @@ import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
 import * as Y from 'yjs';
 import { TiptapCollabProvider } from '@hocuspocus/provider';
+import * as Y from 'yjs';
+import { TiptapCollabProvider } from '@hocuspocus/provider';
 import { BlockEditor } from "@/components/BlockEditor";
 
 export default function MeetingPage({
@@ -111,10 +113,15 @@ export default function MeetingPage({
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-2">
-            {meetingData.account_id && (
+            {meetingData.account_id && userId && (
               <BlockEditor
-                documentId={meetingData.account_id}
-                userId={userId || ''}
+                ydoc={new Y.Doc()}
+                provider={new TiptapCollabProvider({
+                  appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID!,
+                  name: meetingData.account_id,
+                  token: userId,
+                })}
+                hasCollab={true}
               />
             )}
           </div>
