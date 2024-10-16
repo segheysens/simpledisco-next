@@ -33,6 +33,8 @@ export default function AccountDetails() {
       <p><strong>Industry:</strong> {account.industry || 'Not specified'}</p>
       <p><strong>Size:</strong> {account.size || 'Not specified'}</p>
       <p><strong>Created at:</strong> {account.created_at ? new Date(account.created_at).toLocaleString() : 'Not specified'}</p>
+      <p><strong>TipTap Doc ID:</strong> {account.tiptap_doc_id || 'Not specified'}</p>
+
     </div>
   );
 }

@@ -19,7 +19,7 @@ export async function createTipTapDocument(name: string, tiptapDocId: string): P
 
     console.log('Request body:', body);
 
-    const response = await fetch(`https://api.tiptap.cloud/documents/${tiptapDocId}`, {
+    const response = await fetch(`https://${process.env.TIPTAP_APP_ID}.collab.tiptap.cloud/documents/${tiptapDocId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.TIPTAP_API_KEY}`,
