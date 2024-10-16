@@ -35,6 +35,7 @@ export default function MeetingPage({
         if (meeting && meeting.account_id) {
           const account = await getAccount(meeting.account_id);
           if (account && account.tiptap_doc_id) {
+            console.log("hello")
             const newYdoc = new Y.Doc();
             const newProvider = new HocuspocusProvider({
               url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
