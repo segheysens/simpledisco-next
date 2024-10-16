@@ -3,9 +3,8 @@
 export async function createTipTapDocument(name: string, tiptapDocId: string): Promise<void> {
   try {
     const body = JSON.stringify({
-      name: name,
+      type: 'doc',
       content: {
-        type: 'doc',
         content: [
           {
             type: 'paragraph',
