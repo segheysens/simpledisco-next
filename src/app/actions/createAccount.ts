@@ -38,7 +38,7 @@ export async function createAccount(
       },
     });
 
-    return { message: null, redirect: `/accounts/${account.id}` };
+    return { message: null, redirect: `/app/accounts/${account.id}` };
   } catch (error) {
     console.error("Error creating account:", error);
     return { message: "Failed to create account" };
