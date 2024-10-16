@@ -36,31 +36,40 @@ import { auth } from "@clerk/nextjs/server";
 
 type State = {
   message: string | null;
+  redirect?: string;
 };
 
-export async function createAccount(prevState: State, formData: FormData) {
+export async function createAccount(
+  prevState: State,
+  formData: FormData
+): Promise<State> {
+  const name = formData.get("name") as string;
+  const industry = formData.get("industry") as string;
   const { userId }: { userId: string | null } = auth();
 
   if (!userId) {
     return { message: "User not authenticated" };
   }
 
-  const name = formData.get("name") as string;
-  const industry = formData.get("industry") as string;
-
   if (!name) {
     return { message: "Name is required" };
   }
 
+  const user = await prisma.users.findUnique({ where: { idp_id: userId } });
+
+  if (!user) {
+    return { message: "User not found" };
+  }
+
   try {
-    await prisma.accounts.create({
+    const account = await prisma.accounts.create({
       data: {
         name,
         industry: industry || null,
       },
     });
 
-    return { message: null };
+    return { message: null, redirect: `/accounts/${account.id}` };
   } catch (error) {
     console.error("Error creating account:", error);
     return { message: "Failed to create account" };
