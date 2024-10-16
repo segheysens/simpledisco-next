@@ -11,7 +11,7 @@ import { BlockEditor } from "@/components/BlockEditor";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { getUser } from "@/app/actions/getUser";
-import { getAccount } from "@/app/actions/geAccount";
+import { getAccount } from "@/app/actions/getAccount";
 import { getMeeting } from "@/app/actions/getMeeting";
 import * as Y from 'yjs';
 import { HocuspocusProvider } from '@hocuspocus/provider';
