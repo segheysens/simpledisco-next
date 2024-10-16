@@ -1,11 +1,11 @@
 "use server";
 
-export async function createTipTapDocument(name: string): Promise<string> {
+export async function createTipTapDocument(name: string, accountId: string): Promise<string> {
   try {
     const response = await fetch('https://api.tiptap.dev/v1/documents', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.TIPTAP_AUTH_TOKEN}`,
+        'Authorization': `Bearer ${process.env.TIPTAP_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -16,10 +16,13 @@ export async function createTipTapDocument(name: string): Promise<string> {
             {
               type: 'paragraph',
               content: [
-                { type: 'text', text: 'Welcome to your new document!' }
+                { type: 'text', text: `Welcome to the account document for ${name}!` }
               ]
             }
           ]
+        },
+        metadata: {
+          accountId: accountId
         }
       }),
     });
