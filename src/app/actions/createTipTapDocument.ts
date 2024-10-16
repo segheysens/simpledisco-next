@@ -20,9 +20,6 @@ export async function createTipTapDocument(name: string, tiptapDocId: string): P
               ]
             }
           ]
-        },
-        metadata: {
-          accountId: tiptapDocId
         }
       }),
     });
