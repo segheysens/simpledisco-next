@@ -3,7 +3,6 @@ import { createAccount } from "@/app/actions/createAccount";
 import { getAccounts } from "@/app/actions/getAccounts";
 import { useFormState } from "react-dom";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,17 +24,11 @@ const initialState: State = {
 };
 
 export default function Accounts() {
-  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useFormState<State, FormData>(
     async (prevState, formData) => {
       const result = await createAccount(prevState, formData);
-      if (result.redirect) {
-        // Use Next.js router to navigate to the new account page
-        router.push(result.redirect);
-      } else {
-        setReloadAccounts(true);
-      }
+      setReloadAccounts(true);
       return result;
     },
     initialState

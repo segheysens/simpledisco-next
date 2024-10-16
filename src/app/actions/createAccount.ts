@@ -5,7 +5,6 @@ import { auth } from "@clerk/nextjs/server";
 
 type State = {
   message: string | null;
-  redirect?: string;
 };
 
 export async function createAccount(
@@ -38,7 +37,7 @@ export async function createAccount(
       },
     });
 
-    return { message: null, redirect: `/app/accounts/${account.id}` };
+    return { message: null };
   } catch (error) {
     console.error("Error creating account:", error);
     return { message: "Failed to create account" };
