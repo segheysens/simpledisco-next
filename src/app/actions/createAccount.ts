@@ -33,7 +33,10 @@ export async function createAccount(
 
   try {
     const tiptapDocId = nanoid(21);
+    console.log(`Generated TipTap Doc ID: ${tiptapDocId}`);
+
     await createTipTapDocument(`${name} - Account Document`, tiptapDocId);
+    console.log(`Created TipTap document with ID: ${tiptapDocId}`);
 
     const account = await prisma.accounts.create({
       data: {
@@ -44,6 +47,16 @@ export async function createAccount(
     });
 
     console.log(`Created account with ID: ${account.id} and TipTap document ID: ${tiptapDocId}`);
+
+    // Verify that the account was created with the TipTap Doc ID
+    const createdAccount = await prisma.accounts.findUnique({
+      where: { id: account.id },
+    });
+
+    if (!createdAccount || !createdAccount.tiptap_doc_id) {
+      console.error(`Account created but TipTap Doc ID is missing. Account ID: ${account.id}`);
+      return { message: "Account created but TipTap Doc ID is missing" };
+    }
 
     return { message: null };
   } catch (error) {
