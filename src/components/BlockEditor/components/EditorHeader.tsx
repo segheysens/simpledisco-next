@@ -18,8 +18,7 @@ export const EditorHeader = ({
   const { characters, words } = useEditorState({
     editor,
     selector: (ctx): { characters: number; words: number } => {
-      console.log(ctx);
-      const { characters, words } = ctx.editor?.storage.characterCount || {
+      const { characters, words } = ctx.editor.storage.characterCount || {
         characters: () => 0,
         words: () => 0,
       };

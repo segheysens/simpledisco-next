@@ -42,8 +42,8 @@ export default function Meetings() {
   useEffect(() => {
     async function fetchMeetings() {
       const allMeetings = await getMeetings();
-      console.log("allMeetings:");
-      console.log(allMeetings);
+      // console.log("allMeetings:");
+      // console.log(allMeetings);
       const now = new Date();
 
       const upcoming = allMeetings
