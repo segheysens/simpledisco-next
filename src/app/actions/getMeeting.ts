@@ -7,10 +7,12 @@ export async function getMeeting(meetingId: string) {
   const { userId }: { userId: string | null } = auth();
 
   if (!userId) {
+    console.error("User not authenticated");
     throw new Error("User not authenticated");
   }
 
   try {
+    console.log(`Attempting to fetch meeting with ID: ${meetingId}`);
     const meeting = await prisma.meetings.findUnique({
       where: { id: meetingId },
       include: {
@@ -24,9 +26,10 @@ export async function getMeeting(meetingId: string) {
       return null;
     }
 
+    console.log(`Successfully fetched meeting with ID: ${meetingId}`);
     return meeting;
   } catch (error) {
-    console.error("Error fetching meeting:", error);
-    return null;
+    console.error(`Error fetching meeting with ID ${meetingId}:`, error);
+    throw error; // Re-throw the error to be caught in the component
   }
 }
