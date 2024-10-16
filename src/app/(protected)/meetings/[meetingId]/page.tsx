@@ -29,33 +29,43 @@ export default function MeetingPage({
   useEffect(() => {
     async function fetchMeetingData() {
       if (userId) {
-        const meeting = await getMeeting(params.meetingId);
-        setMeetingData(meeting);
+        try {
+          console.log("Fetching meeting data for ID:", params.meetingId);
+          const meeting = await getMeeting(params.meetingId);
+          console.log("Meeting data:", meeting);
+          setMeetingData(meeting);
 
-        if (meeting && meeting.account_id) {
-          const account = await getAccount(meeting.account_id);
-          console.log("Account:", account);
-          if (account && account.tiptap_doc_id) {
-            console.log("TipTap Doc ID:", account.tiptap_doc_id);
-            const newYdoc = new Y.Doc();
-            const newProvider = new HocuspocusProvider({
-              url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
-              name: account.tiptap_doc_id,
-              document: newYdoc,
-              token: userId, // Use the user's ID as the token
-            });
+          if (meeting && meeting.account_id) {
+            console.log("Fetching account data for ID:", meeting.account_id);
+            const account = await getAccount(meeting.account_id);
+            console.log("Account data:", account);
 
-            console.log("New Y.Doc created:", newYdoc);
-            console.log("New HocuspocusProvider created:", newProvider);
+            if (account && account.tiptap_doc_id) {
+              console.log("TipTap Doc ID:", account.tiptap_doc_id);
+              const newYdoc = new Y.Doc();
+              const newProvider = new HocuspocusProvider({
+                url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
+                name: account.tiptap_doc_id,
+                document: newYdoc,
+                token: userId,
+              });
 
-            setYdoc(newYdoc);
-            setProvider(newProvider);
+              console.log("New Y.Doc created:", newYdoc);
+              console.log("New HocuspocusProvider created:", newProvider);
+
+              setYdoc(newYdoc);
+              setProvider(newProvider);
+            } else {
+              console.error("Account found, but TipTap Doc ID is missing");
+            }
           } else {
-            console.error("Account or TipTap Doc ID not found");
+            console.error("Meeting found, but Account ID is missing");
           }
-        } else {
-          console.error("Meeting or Account ID not found");
+        } catch (error) {
+          console.error("Error in fetchMeetingData:", error);
         }
+      } else {
+        console.error("User ID is not available");
       }
     }
 
@@ -135,7 +145,17 @@ export default function MeetingPage({
                 provider={provider}
               />
             ) : (
-              <div>Loading editor...</div>
+              <div>
+                {!meetingData ? (
+                  "Loading meeting data..."
+                ) : !meetingData.account_id ? (
+                  "Error: Meeting has no associated account"
+                ) : !ydoc || !provider ? (
+                  "Error: Failed to initialize collaboration. Check console for details."
+                ) : (
+                  "Loading editor..."
+                )}
+              </div>
             )}
           </div>
         </div>
