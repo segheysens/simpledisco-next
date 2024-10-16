@@ -20,12 +20,13 @@ export async function getMeeting(meetingId: string) {
     });
 
     if (!meeting) {
-      throw new Error("Meeting not found");
+      console.log(`Meeting not found for ID: ${meetingId}`);
+      return null;
     }
 
     return meeting;
   } catch (error) {
     console.error("Error fetching meeting:", error);
-    throw new Error("Failed to fetch meeting");
+    return null;
   }
 }

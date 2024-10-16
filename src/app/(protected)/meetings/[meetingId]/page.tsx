@@ -33,39 +33,49 @@ export default function MeetingPage({
           console.log("Fetching meeting data for ID:", params.meetingId);
           const meeting = await getMeeting(params.meetingId);
           console.log("Meeting data:", meeting);
+          
+          if (!meeting) {
+            console.error("Meeting not found for ID:", params.meetingId);
+            setMeetingData(null);
+            return;
+          }
+          
           setMeetingData(meeting);
 
-          if (meeting && meeting.account_id) {
-            console.log("Fetching account data for ID:", meeting.account_id);
-            const account = await getAccount(meeting.account_id);
-            console.log("Account data:", account);
-
-            if (account) {
-              if (account.tiptap_doc_id) {
-                console.log("TipTap Doc ID:", account.tiptap_doc_id);
-                const newYdoc = new Y.Doc();
-                const newProvider = new HocuspocusProvider({
-                  url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
-                  name: account.tiptap_doc_id,
-                  document: newYdoc,
-                  token: userId,
-                });
-
-                console.log("New Y.Doc created:", newYdoc);
-                console.log("New HocuspocusProvider created:", newProvider);
-
-                setYdoc(newYdoc);
-                setProvider(newProvider);
-              } else {
-                console.error("Account found, but TipTap Doc ID is missing. Account ID:", account.id);
-                // You might want to handle this case, e.g., by creating a new TipTap document
-              }
-            } else {
-              console.error("Account not found for ID:", meeting.account_id);
-            }
-          } else {
+          if (!meeting.account_id) {
             console.error("Meeting found, but Account ID is missing. Meeting ID:", meeting.id);
+            return;
           }
+
+          console.log("Fetching account data for ID:", meeting.account_id);
+          const account = await getAccount(meeting.account_id);
+          console.log("Account data:", account);
+
+          if (!account) {
+            console.error("Account not found for ID:", meeting.account_id);
+            return;
+          }
+
+          if (!account.tiptap_doc_id) {
+            console.error("Account found, but TipTap Doc ID is missing. Account ID:", account.id);
+            // You might want to handle this case, e.g., by creating a new TipTap document
+            return;
+          }
+
+          console.log("TipTap Doc ID:", account.tiptap_doc_id);
+          const newYdoc = new Y.Doc();
+          const newProvider = new HocuspocusProvider({
+            url: `${process.env.NEXT_PUBLIC_HOCUSPOCUS_URL}`,
+            name: account.tiptap_doc_id,
+            document: newYdoc,
+            token: userId,
+          });
+
+          console.log("New Y.Doc created:", newYdoc);
+          console.log("New HocuspocusProvider created:", newProvider);
+
+          setYdoc(newYdoc);
+          setProvider(newProvider);
         } catch (error) {
           console.error("Error in fetchMeetingData:", error);
         }
