@@ -2,14 +2,13 @@
 
 export async function createTipTapDocument(name: string, tiptapDocId: string): Promise<void> {
   try {
-    const response = await fetch('https://api.tiptap.dev/v1/documents', {
+    const response = await fetch(`https://api.tiptap.dev/v1/documents/${tiptapDocId}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.TIPTAP_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: tiptapDocId,
         name: name,
         content: {
           type: 'doc',
