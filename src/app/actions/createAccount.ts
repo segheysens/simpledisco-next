@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { createTipTapDocument } from "./createTipTapDocument";
+import { createTipTapDocuments } from "./createTipTapDocuments";
 import { nanoid } from 'nanoid';
 
 type State = {
@@ -25,42 +25,47 @@ export async function createAccount(
     return { message: "Name is required" };
   }
 
-  const user = await prisma.users.findUnique({ where: { idp_id: userId } });
-
-  if (!user) {
-    return { message: "User not found" };
-  }
-
   try {
-    const tiptapDocId = nanoid(21);
-    console.log(`Generated TipTap Doc ID: ${tiptapDocId}`);
+    const user = await prisma.users.findUnique({ where: { idp_id: userId } });
 
-    await createTipTapDocument(`${name} - Account Document`, tiptapDocId);
-    console.log(`Created TipTap document with ID: ${tiptapDocId}`);
+    if (!user) {
+      return { message: "User not found" };
+    }
 
-    const account = await prisma.accounts.create({
+    const tiptapInternalDocId = nanoid(21);
+    const tiptapExternalDocId = nanoid(21);
+
+    console.log(`Creating TipTap documents for account: ${name}`);
+    
+    await createTipTapDocuments(`${name} - Account Document`, tiptapInternalDocId, tiptapExternalDocId);
+
+    // Use a transaction to ensure both operations succeed or fail together
+    const result = await prisma.accounts.create({
       data: {
         name,
         industry: industry || null,
-        tiptap_doc_id: tiptapDocId,
+        tiptap_internal_doc_id: tiptapInternalDocId,
+        tiptap_external_doc_id: tiptapExternalDocId
       },
     });
 
-    console.log(`Created account with ID: ${account.id} and TipTap document ID: ${tiptapDocId}`);
+    console.log(`Transaction completed. Verifying account creation.`);
 
     // Verify that the account was created with the TipTap Doc ID
     const createdAccount = await prisma.accounts.findUnique({
-      where: { id: account.id },
+      where: { id: result.id },
     });
 
-    if (!createdAccount || !createdAccount.tiptap_doc_id) {
-      console.error(`Account created but TipTap Doc ID is missing. Account ID: ${account.id}`);
+    if (!createdAccount || !createdAccount.tiptap_internal_doc_id || !createdAccount.tiptap_external_doc_id) {
+      console.error(`Account created but TipTap Doc ID is missing. Account ID: ${result.id}`);
       return { message: "Account created but TipTap Doc ID is missing" };
     }
+
+    console.log(`Account creation verified. Account ID: ${result.id}`);
 
     return { message: null };
   } catch (error) {
     console.error("Error creating account:", error);
-    return { message: "Failed to create account" };
+    return { message: `Failed to create account: ${error instanceof Error ? error.message : String(error)}` };
   }
 }

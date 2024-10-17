@@ -6,13 +6,13 @@ import { accounts as Account } from "@prisma/client";
 import { getAccounts } from "@/app/actions/getAccounts";
 
 export default function AccountDetails() {
-  const { id } = useParams();
+  const { accountId } = useParams();
   const [account, setAccount] = useState<Account | null>(null);
 
   useEffect(() => {
     async function fetchAccountDetails() {
       const accounts = await getAccounts();
-      const foundAccount = accounts.find(acc => acc.id === id);
+      const foundAccount = accounts.find(acc => acc.id === accountId);
       if (foundAccount) {
         setAccount(foundAccount);
       } else {
@@ -21,7 +21,7 @@ export default function AccountDetails() {
     }
 
     fetchAccountDetails();
-  }, [id]);
+  }, [accountId]);
 
   if (!account) {
     return <div>Loading...</div>;
@@ -33,7 +33,8 @@ export default function AccountDetails() {
       <p><strong>Industry:</strong> {account.industry || 'Not specified'}</p>
       <p><strong>Size:</strong> {account.size || 'Not specified'}</p>
       <p><strong>Created at:</strong> {account.created_at ? new Date(account.created_at).toLocaleString() : 'Not specified'}</p>
-      <p><strong>TipTap Doc ID:</strong> {account.tiptap_doc_id || 'Not specified'}</p>
+      <p><strong>TipTap Internal Doc ID:</strong> {account.tiptap_internal_doc_id || 'Not specified'}</p>
+      <p><strong>TipTap External Doc ID:</strong> {account.tiptap_external_doc_id || 'Not specified'}</p>
 
     </div>
   );

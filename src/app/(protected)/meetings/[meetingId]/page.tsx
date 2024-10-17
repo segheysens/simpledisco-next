@@ -119,13 +119,13 @@ export default function MeetingPage({
             </div>
           </div>
           <div className="w-full md:w-2/3 space-y-2">
-            {accountData.tiptap_doc_id && userId && (
+            {accountData.tiptap_internal_doc_id && userId && (
               <BlockEditor
                 ydoc={new Y.Doc()}
                 provider={new TiptapCollabProvider({
                   appId: process.env.NEXT_PUBLIC_TIPTAP_APP_ID!,
                   name: accountData.tiptap_doc_id,
-                  token: process.env.NEXT_PUBLIC_TIPTAP_AUTH_TOKEN,
+                  // token: process.env.NEXT_PUBLIC_TIPTAP_AUTH_TOKEN,
                 })}
                 hasCollab={true}
               />
